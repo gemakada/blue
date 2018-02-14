@@ -16,6 +16,7 @@
 
             android:name="com.example.makan.blue.MainActivity"
             android:windowSoftInputMode="adjustPan"
+            android:launchMode="singleTop"
 
            >
 

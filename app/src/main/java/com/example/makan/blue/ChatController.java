@@ -12,9 +12,12 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.UUID;
 
@@ -316,7 +319,10 @@ public class ChatController {
             while (true) {
                 try {
                     // Read from the InputStream
+                  // BufferedReader buffereader=new BufferedReader(new InputStreamReader(inputStream));
+                  //  buffereader.re
                     bytes = inputStream.read(buffer);
+
 
                     // Send the obtained bytes to the UI Activity
                     handler.obtainMessage(MainActivity.MESSAGE_READ, bytes, -1,

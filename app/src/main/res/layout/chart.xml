@@ -21,12 +21,24 @@
 
             <ImageView
                 android:id="@+id/toolbar_logo"
-                android:layout_gravity="center"
+                android:layout_gravity="left"
                 android:adjustViewBounds="false"
                 android:src="@drawable/ic_launcher"
                 android:layout_width="77dp"
                 android:layout_height="?attr/actionBarSize"
                 android:layout_marginLeft="0dp"/>
+            <TextView
+                android:id="@+id/text_view_id"
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:text="@string/hello"
+                android:layout_weight="0.55"
+                android:paddingTop="0dp"
+                android:textAlignment="center"
+                android:textColor="@android:color/white"
+                android:textScaleX="1"
+                android:textStyle="bold"
+                android:textSize="14sp" />
 
 
 

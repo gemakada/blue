@@ -35,9 +35,12 @@ import android.widget.Toast;
 
 import com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.JSONTokener;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 /**
@@ -54,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
     String[] Foodlist2={"Rocket"};
     String[] Templist={"8C"};
     String[] Explist={"0h","14h","206h"};
-
+    private ArrayList<Data> Datalist;
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private final static int REQUEST_ENABLE_BT = 1;
     private ArrayAdapter<String> discoveredDevicesAdapter;
@@ -81,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
     private String Food_Type2;
     private String Temperature;
     private String Exposure;
+    private String JsonReceive=" ";
+    private int ack=0;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -364,6 +369,8 @@ public class MainActivity extends AppCompatActivity {
 
 
                     Intent myIntent = new Intent(MainActivity.this, ChartActivity.class);
+                    myIntent.putExtra("Json",JsonReceive);
+                    Log.e(LOG_TAG,String.valueOf(JsonReceive.length()));
                     chatController.stop();
                     startActivity(myIntent);
 
@@ -396,6 +403,8 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     JSONObject request=null;
+                    ack=0;
+                    JsonReceive=" ";
                     try {
                         if (Use_Case.equals("Use Case 1")) {
                             request = new JSONObject();
@@ -520,11 +529,19 @@ public class MainActivity extends AppCompatActivity {
                     byte[] readBuf = (byte[]) msg.obj;
 
                     String readMessage = new String(readBuf, 0, msg.arg1);
+
                    // chatMessages.add(connectingDevice.getName() + ":  " + readMessage);
                   //  chatAdapter.notifyDataSetChanged();
                     Toast.makeText(getApplicationContext(), readMessage,
                             Toast.LENGTH_SHORT).show();
-                    Log.e(LOG_TAG,connectingDevice.getName() + ":  " + readMessage);
+                   // Log.e(LOG_TAG,connectingDevice.getName()+" Edw " + ":  " + readMessage);
+                    JsonReceive+=readMessage;
+                    Log.e(LOG_TAG,connectingDevice.getName()+" Edw " + ":  " + readMessage);
+                    ack++;
+
+                    SendAck(ack);
+
+                   // Decode(readMessage);
                     break;
                 case MESSAGE_DEVICE_OBJECT:
                     connectingDevice = msg.getData().getParcelable(DEVICE_OBJECT);
@@ -661,4 +678,29 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     };
+
+    private void SendAck(int ack) {
+       // JSONObject=new JSONObject()
+        JSONObject request=null;
+        try {
+
+
+                request = new JSONObject();
+                JSONObject RequestBody = new JSONObject();
+                RequestBody.put("USE_CASE", "ACK");
+                RequestBody.put("ACK_NUM", String.valueOf(ack));
+
+                request.put("Request", RequestBody);
+
+
+        } catch (JSONException e) {
+            Log.e("MYAPP", "unexpected JSON exception", e);
+            // Do something to recover ... or kill the app.
+        }
+        if (request.toString()!=null) {
+            sendMessage(request.toString());
+        }
+    }
+
+
 }
