@@ -5,8 +5,11 @@ import android.os.StrictMode;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -14,6 +17,7 @@ import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -28,18 +32,22 @@ import java.util.List;
  */
 
 public class ChartActivity extends AppCompatActivity {
+    String[] SPINNERLIST2 = {"UV_VIS","NIR"};
     private List<Entry> entries;
+    private List<Entry> entries2;
     private LineChart chart;
     private Data[] dataObjects;
     private LineDataSet dataSet;
+    private LineDataSet dataSet2;
     private LineData lineData;
     private ArrayList<Data> Datalist;
+    private ArrayList<Data> DatalistNIR;
     private String json=null;
     private static final String LOG_TAG = ChartActivity.class.getSimpleName();
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-       // setContentView(R.layout.second_view);
+        // setContentView(R.layout.second_view);
 
         if (android.os.Build.VERSION.SDK_INT > 9) {
 
@@ -50,27 +58,38 @@ public class ChartActivity extends AppCompatActivity {
             StrictMode.setThreadPolicy(policy);
 
         }
-      setContentView(R.layout.chart);
+        setContentView(R.layout.chart);
+        final ArrayAdapter<String> arrayAdapter2 = new ArrayAdapter<String>(this,
+                android.R.layout.simple_dropdown_item_1line, SPINNERLIST2);
+        final MaterialBetterSpinner materialDesignSpinner = (MaterialBetterSpinner)
+                findViewById(R.id.android_material_design_spinner);
+        materialDesignSpinner.setAdapter(arrayAdapter2);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Bundle extras = getIntent().getExtras();
-        if(extras == null) {
-            json= null;
+        if (extras == null) {
+            json = null;
         } else {
-            json= extras.getString("Json");
-            if (json!=null)
-                Log.e(LOG_TAG,json);
+            json = extras.getString("Json");
+            if (json != null)
+                Log.e(LOG_TAG, json);
             Decode(json);
 
         }
-       chart = (LineChart) findViewById(R.id.chart);
-        if (Datalist!=null) {
-            Log.e(LOG_TAG,"Not Null edw");
+        chart = (LineChart) findViewById(R.id.chart);
+        if ((Datalist != null) && (DatalistNIR != null)) {
+            Log.e(LOG_TAG, "Not Null edw");
             entries = new ArrayList<Entry>();
+            entries2 = new ArrayList<Entry>();
             for (int i = 0; i < Datalist.size(); i++) {
-                entries.add(new Entry((float)Datalist.get(i).getx(),(float)Datalist.get(i).gety()));
+                entries.add(new Entry((float) Datalist.get(i).getx(), (float) Datalist.get(i).gety()));
             }
+            for (int i = 0; i < DatalistNIR.size(); i++) {
+                entries2.add(new Entry((float) DatalistNIR.get(i).getx(), (float) DatalistNIR.get(i).gety()));
+            }
+
       /* dataObjects= new Data[3];
 
         dataObjects[0]= new Data(1.5,1.5);
@@ -82,23 +101,53 @@ public class ChartActivity extends AppCompatActivity {
             // turn your data into Entry objects
             entries.add(new Entry((float)data.getx(), (float)data.gety()));
         }*/
-                // Decode();
-                dataSet = new LineDataSet(entries, "Label");
+            // Decode();
+            dataSet = new LineDataSet(entries, "UV_VIS");
+            dataSet2 = new LineDataSet(entries2, "NIR");
             lineData = new LineData(dataSet);
             chart.setData(lineData);
 
             chart.invalidate(); // refresh
 
-         //   entries.add(new Entry(5, 5));
+
+            //   entries.add(new Entry(5, 5));
             //lineData.addEntry(new Entry(5, 5),3);
             //chart.setData(lineData);
-          //  dataSet.notifyDataSetChanged();
-          //  lineData.notifyDataChanged();
+            //  dataSet.notifyDataSetChanged();
+            //  lineData.notifyDataChanged();
 
-         //   chart.notifyDataSetChanged();
-          //  chart.invalidate(); // refresh
+            //   chart.notifyDataSetChanged();
+            //  chart.invalidate(); // refresh
 
         }
+
+        materialDesignSpinner.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (materialDesignSpinner.getText().toString().equals(SPINNERLIST2[0])) {
+                    lineData = new LineData(dataSet);
+                    chart.setData(lineData);
+                    chart.notifyDataSetChanged();
+                    chart.invalidate(); // refresh
+                }
+                else {
+                    lineData = new LineData(dataSet2);
+                    chart.setData(lineData);
+                    chart.notifyDataSetChanged();
+                    chart.invalidate(); // refresh
+                }
+            }
+        });
     }
 
     @Override
@@ -124,7 +173,6 @@ public class ChartActivity extends AppCompatActivity {
 
 
 
-
     }
 
 
@@ -133,9 +181,15 @@ public class ChartActivity extends AppCompatActivity {
             JSONObject json= (JSONObject) new JSONTokener(jsonstr).nextValue();
             JSONObject json2 = json.getJSONObject("uV-VIS");
             JSONArray UVArray=json2.getJSONArray("Preprocessed");
+            JSONObject json3=json.getJSONObject("NIR");
+            JSONArray NIRArray=json3.getJSONArray("Preprocessed");
             Datalist= new ArrayList<Data>();
+            DatalistNIR= new ArrayList<Data>();
             for (int i=0; i<UVArray.length(); i++) {
                 Datalist.add(new Data(UVArray.getJSONObject(i).getDouble("wave"),UVArray.getJSONObject(i).getDouble("measurement")));
+            }
+            for (int i=0; i<NIRArray.length(); i++) {
+                DatalistNIR.add(new Data(NIRArray.getJSONObject(i).getDouble("wave"),NIRArray.getJSONObject(i).getDouble("measurement")));
             }
         } catch (JSONException e) {
             e.printStackTrace();
