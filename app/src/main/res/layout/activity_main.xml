@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <LinearLayout
+        android:background="@android:color/white"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:weightSum="4">
 
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
@@ -59,12 +67,13 @@
             android:layout_alignParentBottom="true"
             android:orientation="vertical"
             android:weightSum="4">
+
             <TextView
                 android:id="@+id/status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Not Connected"
-                android:layout_marginTop="80dp" />
+                android:layout_marginTop="10dp"
+                android:text="Not Connected" />
 
             <Button
                 android:id="@+id/btn_connect"
@@ -174,6 +183,6 @@
 
 
 
-
+</LinearLayout>
 
 </android.support.design.widget.CoordinatorLayout>
