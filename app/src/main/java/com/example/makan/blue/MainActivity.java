@@ -48,15 +48,15 @@ import java.util.Set;
  */
 
 public class MainActivity extends AppCompatActivity {
-    String[] SPINNERLIST = {"Use Case 1", "Use Case 2"};
+    String[] SPINNERLIST = {"Mycotoxins detection", "Food spoilage"};
     String[] SPINNERLIST2 = {"Maize flour","Skimmed milk powder","Paprika powder","Almond","Peanuts"};
     String[] SPINNERLIST3 = {"Low","Medium","High"};
     String[] Mycotoxins = {"AF B1","Total AFs","DON"};
     String[] Granularity= {"Low","Medium","High"};
     String[] Foodlist={"Maize flour","Skimmed milk powder","Paprika powder","Almond","Peanuts"};
-    String[] Foodlist2={"Rocket"};
-    String[] Templist={"8C"};
-    String[] Explist={"0h","14h","206h"};
+    String[] Foodlist2={"Rocket","Fish"};
+    String[] Templist={"8","4","12"};
+    String[] Explist={"0","14","158"};
     private ArrayList<Data> Datalist;
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private final static int REQUEST_ENABLE_BT = 1;
@@ -406,21 +406,21 @@ public class MainActivity extends AppCompatActivity {
                     ack=0;
                     JsonReceive=" ";
                     try {
-                        if (Use_Case.equals("Use Case 1")) {
+                        if (Use_Case.equals("Mycotoxins detection")) {
                             request = new JSONObject();
                             JSONObject RequestBody = new JSONObject();
-                            RequestBody.put("USE_CASE", Use_Case);
-                            RequestBody.put("Food_Type", Food_Type);
+                            RequestBody.put("Use cases", Use_Case);
+                            RequestBody.put("Food type", Food_Type);
                             RequestBody.put("Granularity", Granularitystr);
                             request.put("Request", RequestBody);
                         }
                         else {
                             request = new JSONObject();
                             JSONObject RequestBody = new JSONObject();
-                            RequestBody.put("USE_CASE", Use_Case);
-                            RequestBody.put("Food_Type", Food_Type2);
-                            RequestBody.put("Temperature", Temperature);
-                            RequestBody.put("Exposure_Hours", Exposure);
+                            RequestBody.put("Use cases", Use_Case);
+                            RequestBody.put("Food type", Food_Type2);
+                            RequestBody.put("Sample temperature", Temperature);
+                            RequestBody.put("Exposure time", Exposure);
                             request.put("Request", RequestBody);
                         }
 
@@ -532,14 +532,22 @@ public class MainActivity extends AppCompatActivity {
 
                    // chatMessages.add(connectingDevice.getName() + ":  " + readMessage);
                   //  chatAdapter.notifyDataSetChanged();
-                    Toast.makeText(getApplicationContext(), readMessage,
-                            Toast.LENGTH_SHORT).show();
+                 //   Toast.makeText(getApplicationContext(), readMessage,
+                  //          Toast.LENGTH_SHORT).show();
                    // Log.e(LOG_TAG,connectingDevice.getName()+" Edw " + ":  " + readMessage);
-                    JsonReceive+=readMessage;
-                    Log.e(LOG_TAG,connectingDevice.getName()+" Edw " + ":  " + readMessage);
-                    ack++;
+                    if (readMessage.equals("End of Response")) {
+                        Toast.makeText(getApplicationContext(), readMessage,
+                                          Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        JsonReceive+=readMessage;
+                        ack++;
 
-                    SendAck(ack);
+                        SendAck(ack);
+                    }
+
+                    Log.e(LOG_TAG,connectingDevice.getName()+" Edw " + ":  " + readMessage);
+
 
                    // Decode(readMessage);
                     break;
@@ -687,7 +695,7 @@ public class MainActivity extends AppCompatActivity {
 
                 request = new JSONObject();
                 JSONObject RequestBody = new JSONObject();
-                RequestBody.put("USE_CASE", "ACK");
+                RequestBody.put("Use cases", "ACK");
                 RequestBody.put("ACK_NUM", String.valueOf(ack));
 
                 request.put("Request", RequestBody);

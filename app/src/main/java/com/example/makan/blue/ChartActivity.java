@@ -102,7 +102,7 @@ public class ChartActivity extends AppCompatActivity {
             entries.add(new Entry((float)data.getx(), (float)data.gety()));
         }*/
             // Decode();
-            dataSet = new LineDataSet(entries, "UV_VIS");
+            dataSet = new LineDataSet(entries, "VIS");
             dataSet2 = new LineDataSet(entries2, "NIR");
             lineData = new LineData(dataSet);
             chart.setData(lineData);
@@ -179,10 +179,12 @@ public class ChartActivity extends AppCompatActivity {
     private void Decode(String jsonstr) {
         try {
             JSONObject json= (JSONObject) new JSONTokener(jsonstr).nextValue();
-            JSONObject json2 = json.getJSONObject("uV-VIS");
+            JSONObject jsonresponse=json.getJSONObject("Response");
+            JSONObject jsonSample=jsonresponse.getJSONObject("Sample");
+            JSONObject json2 = jsonSample.getJSONObject("VIS");
             JSONArray UVArray=json2.getJSONArray("Preprocessed");
-            JSONObject json3=json.getJSONObject("NIR");
-            JSONArray NIRArray=json3.getJSONArray("Preprocessed");
+            JSONObject json3=jsonSample.getJSONObject("NIR");
+            JSONArray NIRArray=json3.getJSONArray("averageAbsorbance");
             Datalist= new ArrayList<Data>();
             DatalistNIR= new ArrayList<Data>();
             for (int i=0; i<UVArray.length(); i++) {
