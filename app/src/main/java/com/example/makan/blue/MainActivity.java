@@ -7,6 +7,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -19,15 +20,18 @@ import android.renderscript.Sampler;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresPermission;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -56,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     String[] Foodlist={"Maize flour","Skimmed milk powder","Paprika powder","Almond","Peanuts"};
     String[] Foodlist2={"Rocket","Fish"};
     String[] Templist={"8","4","12"};
-    String[] Explist={"0","14","158"};
+    String[] Explist={"0","14","24","38","48","86","110","134","158"};
     private ArrayList<Data> Datalist;
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private final static int REQUEST_ENABLE_BT = 1;
@@ -66,8 +70,13 @@ public class MainActivity extends AppCompatActivity {
     private Button Send;
     private Button Chart;
     private Button Cancel;
+    private Button NIR;
+    private Button WhiteRef;
+    private Button OpenConfiguration;
     private Dialog dialog;
     private TextView status;
+    private EditText tvisedit;
+    private EditText tfluoedit;
     private BluetoothAdapter adapter;
     private BluetoothDevice connectingDevice;
     public static final int MESSAGE_STATE_CHANGE = 1;
@@ -85,7 +94,11 @@ public class MainActivity extends AppCompatActivity {
     private String Temperature;
     private String Exposure;
     private String JsonReceive=" ";
+    private String tvis;
+    private String tfluo;
     private int ack=0;
+    private boolean calibrationflag=false;
+    final Context c = this;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -362,6 +375,38 @@ public class MainActivity extends AppCompatActivity {
             btnDisConnect=(Button) findViewById(R.id.btn_disconnect);
             Chart=(Button) findViewById(R.id.Chart);
             Send= (Button) findViewById(R.id.SendMsg);
+            NIR=(Button)findViewById(R.id.NIR);
+            WhiteRef=(Button)findViewById(R.id.WhiteReference);
+            OpenConfiguration=(Button)findViewById(R.id.Configuration);
+            NIR.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ack=0;
+                    JsonReceive=" ";
+                    JSONObject request=null;
+                    request = new JSONObject();
+                    JSONObject RequestBody = new JSONObject();
+                    try {
+                        RequestBody.put("Use cases", "sensorCalibrationNIR");
+                        request.put("Request",RequestBody);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    if (request.toString()!=null) {
+                        Intent myIntent = new Intent(MainActivity.this, NirSpecs.class);
+                        //startActivity(myIntent);
+                        sendMessage(request.toString());
+                        calibrationflag=true;
+                    }
+                    else {
+                        Toast.makeText(getApplicationContext(), "No Message Set",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+
 
             Chart.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -409,18 +454,30 @@ public class MainActivity extends AppCompatActivity {
                         if (Use_Case.equals("Mycotoxins detection")) {
                             request = new JSONObject();
                             JSONObject RequestBody = new JSONObject();
+                            JSONObject conf= new JSONObject();
+                            JSONObject uvspectr= new JSONObject();
                             RequestBody.put("Use cases", Use_Case);
                             RequestBody.put("Food type", Food_Type);
                             RequestBody.put("Granularity", Granularitystr);
+                            uvspectr.put("t_vis",tvis);
+                            uvspectr.put("t_fluo",tfluo);
+                            conf.put("VisSpectrometer",uvspectr);
+                            RequestBody.put("configuration",conf);
                             request.put("Request", RequestBody);
                         }
                         else {
                             request = new JSONObject();
+                            JSONObject conf= new JSONObject();
+                            JSONObject uvspectr= new JSONObject();
                             JSONObject RequestBody = new JSONObject();
                             RequestBody.put("Use cases", Use_Case);
                             RequestBody.put("Food type", Food_Type2);
                             RequestBody.put("Sample temperature", Temperature);
                             RequestBody.put("Exposure time", Exposure);
+                            uvspectr.put("t_vis",tvis);
+                            uvspectr.put("t_fluo",tfluo);
+                            conf.put("VisSpectrometer",uvspectr);
+                            RequestBody.put("configuration",conf);
                             request.put("Request", RequestBody);
                         }
 
@@ -436,6 +493,71 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.LENGTH_SHORT).show();
                     }
                 }
+            });
+
+            WhiteRef.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ack=0;
+                    JsonReceive=" ";
+                    JSONObject request=null;
+                    request = new JSONObject();
+                    JSONObject RequestBody = new JSONObject();
+                    try {
+                        RequestBody.put("Use cases", "WhiteReferenceUV");
+                        request.put("Request",RequestBody);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    if (request.toString()!=null) {
+                        Intent myIntent = new Intent(MainActivity.this, NirSpecs.class);
+                        //startActivity(myIntent);
+                        sendMessage(request.toString());
+
+                    }
+                    else {
+                        Toast.makeText(getApplicationContext(), "No Message Set",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+            });
+
+            OpenConfiguration.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    LayoutInflater layoutInflaterAndroid = LayoutInflater.from(c);
+                    View mView = layoutInflaterAndroid.inflate(R.layout.dialogue, null);
+                    AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(c);
+                    alertDialogBuilderUserInput.setView(mView);
+
+                    final EditText tvisedit = (EditText) mView.findViewById(R.id.tvis);
+                    final EditText tfluosedit = (EditText) mView.findViewById(R.id.tfluo);
+                    alertDialogBuilderUserInput
+                            .setCancelable(false)
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialogBox, int id) {
+
+                                        tvis=tvisedit.getText().toString();
+                                        tfluo=tfluosedit.getText().toString();
+                                         Log.e(LOG_TAG,tvis);
+
+                                    // ToDo get user input here
+                                }
+                            })
+
+                            .setNegativeButton("Cancel",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialogBox, int id) {
+                                            dialogBox.cancel();
+                                        }
+                                    });
+
+                    AlertDialog alertDialogAndroid = alertDialogBuilderUserInput.create();
+                    alertDialogAndroid.show();
+                }
+
             });
 
         }
@@ -538,6 +660,21 @@ public class MainActivity extends AppCompatActivity {
                     if (readMessage.equals("End of Response")) {
                         Toast.makeText(getApplicationContext(), readMessage,
                                           Toast.LENGTH_SHORT).show();
+                        if (calibrationflag) {
+                            Intent myIntent = new Intent(MainActivity.this, NirSpecs.class);
+                            if (!checkfail(JsonReceive)) {
+                                myIntent.putExtra("Json", JsonReceive);
+                                Log.e(LOG_TAG, String.valueOf(JsonReceive.length()));
+                                chatController.stop();
+                                calibrationflag = false;
+                                startActivity(myIntent);
+                            }
+                            else {
+                                calibrationflag = false;
+                                Toast.makeText(getApplicationContext(), "Devise Not Found",
+                                        Toast.LENGTH_SHORT).show();
+                            }
+                        }
                     }
                     else {
                         JsonReceive+=readMessage;
@@ -708,6 +845,24 @@ public class MainActivity extends AppCompatActivity {
         if (request.toString()!=null) {
             sendMessage(request.toString());
         }
+    }
+
+
+    private boolean checkfail(String json) {
+        try {
+            JSONObject obj=(JSONObject) new JSONTokener(json).nextValue();
+            JSONObject response=obj.getJSONObject("Response");
+            String res=response.getString("Status");
+            if (res.equals("FAIL")) {
+                return true;
+            }
+        }
+        catch (JSONException e) {
+
+        }
+
+
+        return false;
     }
 
 

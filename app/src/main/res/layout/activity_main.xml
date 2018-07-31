@@ -105,6 +105,29 @@
                 android:layout_marginTop="40dp"
                 android:clickable="true"
                 android:text="Chart" />
+
+            <Button
+                android:id="@+id/NIR"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:clickable="true"
+                android:text="NIR Spectrometer" />
+
+            <Button
+                android:id="@+id/WhiteReference"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:clickable="true"
+                android:text="White Reference" />
+            <Button
+                android:id="@+id/Configuration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:clickable="true"
+                android:text="Configuration" />
         <LinearLayout
             android:background="@android:color/white"
             android:layout_width="match_parent"

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/custom_dialog_layout_design_user_input"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/dialogTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Configuration"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/dialogTitle2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="VisSpectrometer"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textStyle="italic" />
+
+    <EditText
+        android:id="@+id/tvis"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Vis Integration time"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/tfluo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Fluo Integration time"
+        android:inputType="number" />
+</LinearLayout>

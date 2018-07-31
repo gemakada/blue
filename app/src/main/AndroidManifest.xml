@@ -32,13 +32,21 @@
             ></activity>
 
         <activity
-            android:name="com.example.makan.blue.ChartActivity"
+        android:name="com.example.makan.blue.ChartActivity"
+        android:windowSoftInputMode="adjustPan"
+        android:parentActivityName="com.example.makan.blue.MainActivity">
+        <meta-data
+            android:name="android.support.PARENT_ACTIVITY"
+            android:value=".ChartActivity" />
+        ></activity>
+        <activity
+            android:name="com.example.makan.blue.NirSpecs"
             android:windowSoftInputMode="adjustPan"
             android:parentActivityName="com.example.makan.blue.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ChartActivity" />
-        ></activity>
+                android:value=".NirSpecs" />
+            ></activity>
     </application>
 
 
