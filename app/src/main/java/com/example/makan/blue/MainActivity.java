@@ -72,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     private Button Cancel;
     private Button NIR;
     private Button WhiteRef;
+    private Button WhiteRefUV;
     private Button OpenConfiguration;
     private Dialog dialog;
     private TextView status;
@@ -96,6 +97,9 @@ public class MainActivity extends AppCompatActivity {
     private String JsonReceive=" ";
     private String tvis;
     private String tfluo;
+    private String V_UV;
+    private String Vw_vis;
+    private String V_nir;
     private int ack=0;
     private boolean calibrationflag=false;
     final Context c = this;
@@ -376,7 +380,8 @@ public class MainActivity extends AppCompatActivity {
             Chart=(Button) findViewById(R.id.Chart);
             Send= (Button) findViewById(R.id.SendMsg);
             NIR=(Button)findViewById(R.id.NIR);
-            WhiteRef=(Button)findViewById(R.id.WhiteReference);
+            WhiteRef=(Button)findViewById(R.id.WhiteReferenceVIS);
+            WhiteRefUV=(Button)findViewById(R.id.WhiteReferenceUV);
             OpenConfiguration=(Button)findViewById(R.id.Configuration);
             NIR.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -385,9 +390,29 @@ public class MainActivity extends AppCompatActivity {
                     JsonReceive=" ";
                     JSONObject request=null;
                     request = new JSONObject();
-                    JSONObject RequestBody = new JSONObject();
+                  //  JSONObject RequestBody = new JSONObject();
                     try {
+                        JSONObject visLeds= new JSONObject();
+                        JSONObject RequestBody = new JSONObject();
+                        JSONObject conf= new JSONObject();
+                        JSONObject uvspectr= new JSONObject();
+                        JSONObject nirspectr= new JSONObject();
+                        JSONObject nirLeds= new JSONObject();
+
+
+                        uvspectr.put("t_vis",tvis);
+                        uvspectr.put("t_fluo",tfluo);
+                        nirLeds.put("V_nir",V_nir);
+                        nirspectr.put("NirMicrolamps",nirLeds);
+                        visLeds.put("V_UV",V_UV);
+                        visLeds.put("Vw_vis",Vw_vis);
+                        uvspectr.put("visLeds",visLeds);
+                        conf.put("VisSpectrometer",uvspectr);
+                        conf.put("NirSpectrometer",nirspectr);
                         RequestBody.put("Use cases", "sensorCalibrationNIR");
+                        RequestBody.put("configuration",conf);
+                        request.put("Request", RequestBody);
+
                         request.put("Request",RequestBody);
 
                     } catch (JSONException e) {
@@ -453,15 +478,24 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         if (Use_Case.equals("Mycotoxins detection")) {
                             request = new JSONObject();
+                            JSONObject visLeds= new JSONObject();
                             JSONObject RequestBody = new JSONObject();
                             JSONObject conf= new JSONObject();
                             JSONObject uvspectr= new JSONObject();
-                            RequestBody.put("Use cases", Use_Case);
+                            JSONObject nirspectr= new JSONObject();
+                            JSONObject nirLeds= new JSONObject();
+                           RequestBody.put("Use cases", Use_Case);
                             RequestBody.put("Food type", Food_Type);
                             RequestBody.put("Granularity", Granularitystr);
                             uvspectr.put("t_vis",tvis);
                             uvspectr.put("t_fluo",tfluo);
+                            nirLeds.put("V_nir",V_nir);
+                            nirspectr.put("NirMicrolamps",nirLeds);
+                            visLeds.put("V_UV",V_UV);
+                            visLeds.put("Vw_vis",Vw_vis);
+                            uvspectr.put("visLeds",visLeds);
                             conf.put("VisSpectrometer",uvspectr);
+                            conf.put("NirSpectrometer",nirspectr);
                             RequestBody.put("configuration",conf);
                             request.put("Request", RequestBody);
                         }
@@ -469,6 +503,7 @@ public class MainActivity extends AppCompatActivity {
                             request = new JSONObject();
                             JSONObject conf= new JSONObject();
                             JSONObject uvspectr= new JSONObject();
+                            JSONObject visLeds= new JSONObject();
                             JSONObject RequestBody = new JSONObject();
                             RequestBody.put("Use cases", Use_Case);
                             RequestBody.put("Food type", Food_Type2);
@@ -476,6 +511,9 @@ public class MainActivity extends AppCompatActivity {
                             RequestBody.put("Exposure time", Exposure);
                             uvspectr.put("t_vis",tvis);
                             uvspectr.put("t_fluo",tfluo);
+                            visLeds.put("V_UV",V_UV);
+                            visLeds.put("Vw_vis",Vw_vis);
+                            uvspectr.put("visLeds",visLeds);
                             conf.put("VisSpectrometer",uvspectr);
                             RequestBody.put("configuration",conf);
                             request.put("Request", RequestBody);
@@ -503,9 +541,24 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject request=null;
                     request = new JSONObject();
                     JSONObject RequestBody = new JSONObject();
+                    JSONObject uvspectr = new JSONObject();
+                    JSONObject nirspectr= new JSONObject();
+                    JSONObject nirLeds= new JSONObject();
+                    JSONObject visLeds = new JSONObject();
+                    JSONObject conf = new JSONObject();
                     try {
-                        RequestBody.put("Use cases", "WhiteReferenceUV");
-                        request.put("Request",RequestBody);
+                        RequestBody.put("Use cases", "WhiteReferenceVIS");
+                        uvspectr.put("t_vis",tvis);
+                        uvspectr.put("t_fluo",tfluo);
+                        nirLeds.put("V_nir",V_nir);
+                        nirspectr.put("NirMicrolamps",nirLeds);
+                        visLeds.put("V_UV",V_UV);
+                        visLeds.put("Vw_vis",Vw_vis);
+                        uvspectr.put("visLeds",visLeds);
+                        conf.put("VisSpectrometer",uvspectr);
+                        conf.put("NirSpectrometer",nirspectr);
+                        RequestBody.put("configuration",conf);
+                        request.put("Request", RequestBody);
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -523,7 +576,49 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             });
+            WhiteRefUV.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ack=0;
+                    JsonReceive=" ";
+                    JSONObject request=null;
+                    request = new JSONObject();
+                    JSONObject RequestBody = new JSONObject();
+                    JSONObject uvspectr = new JSONObject();
+                    JSONObject nirspectr= new JSONObject();
+                    JSONObject nirLeds= new JSONObject();
+                    JSONObject visLeds = new JSONObject();
+                    JSONObject conf = new JSONObject();
+                    try {
+                        RequestBody.put("Use cases", "WhiteReferenceUV");
+                        uvspectr.put("t_vis",tvis);
+                        uvspectr.put("t_fluo",tfluo);
+                        nirLeds.put("V_nir",V_nir);
+                        nirspectr.put("NirMicrolamps",nirLeds);
+                        visLeds.put("V_UV",V_UV);
+                        visLeds.put("Vw_vis",Vw_vis);
+                        uvspectr.put("visLeds",visLeds);
+                        conf.put("VisSpectrometer",uvspectr);
+                        conf.put("NirSpectrometer",nirspectr);
+                        RequestBody.put("configuration",conf);
+                        request.put("Request", RequestBody);
 
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    if (request.toString()!=null) {
+                        Intent myIntent = new Intent(MainActivity.this, NirSpecs.class);
+                        //startActivity(myIntent);
+                        sendMessage(request.toString());
+
+                    }
+                    else {
+                        Toast.makeText(getApplicationContext(), "No Message Set",
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+            });
             OpenConfiguration.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -534,6 +629,9 @@ public class MainActivity extends AppCompatActivity {
 
                     final EditText tvisedit = (EditText) mView.findViewById(R.id.tvis);
                     final EditText tfluosedit = (EditText) mView.findViewById(R.id.tfluo);
+                    final EditText EditUV_V=(EditText) mView.findViewById(R.id.V_UV);
+                    final EditText EditUw_V=(EditText) mView.findViewById(R.id.Vw_vis);
+                    final EditText EditU_nir=(EditText) mView.findViewById((R.id.v_NIR));
                     alertDialogBuilderUserInput
                             .setCancelable(false)
                             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -541,6 +639,9 @@ public class MainActivity extends AppCompatActivity {
 
                                         tvis=tvisedit.getText().toString();
                                         tfluo=tfluosedit.getText().toString();
+                                        V_UV=EditUV_V.getText().toString();
+                                        Vw_vis=EditUw_V.getText().toString();
+                                        V_nir=EditU_nir.getText().toString();
                                          Log.e(LOG_TAG,tvis);
 
                                     // ToDo get user input here

@@ -26,22 +26,26 @@ import org.json.JSONTokener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Created by makan on 12/2/2018.
  */
 
 public class ChartActivity extends AppCompatActivity {
-    String[] SPINNERLIST2 = {"UV_VIS","NIR"};
+    String[] SPINNERLIST2 = {"UV_VIS","NIR","FLUO"};
     private List<Entry> entries;
     private List<Entry> entries2;
+    private List<Entry> entries3;
     private LineChart chart;
     private Data[] dataObjects;
     private LineDataSet dataSet;
     private LineDataSet dataSet2;
+    private LineDataSet dataSet3;
     private LineData lineData;
     private ArrayList<Data> Datalist;
     private ArrayList<Data> DatalistNIR;
+    private ArrayList<Data> DatalistFLUO;
     private String json=null;
     private static final String LOG_TAG = ChartActivity.class.getSimpleName();
     @Override
@@ -79,17 +83,20 @@ public class ChartActivity extends AppCompatActivity {
 
         }
         chart = (LineChart) findViewById(R.id.chart);
-        if ((Datalist != null) && (DatalistNIR != null)) {
+        if ((Datalist != null) && (DatalistNIR != null) && (DatalistFLUO!=null)) {
             Log.e(LOG_TAG, "Not Null edw");
             entries = new ArrayList<Entry>();
             entries2 = new ArrayList<Entry>();
+            entries3= new ArrayList<Entry>();
             for (int i = 0; i < Datalist.size(); i++) {
                 entries.add(new Entry((float) Datalist.get(i).getx(), (float) Datalist.get(i).gety()));
             }
             for (int i = 0; i < DatalistNIR.size(); i++) {
                 entries2.add(new Entry((float) DatalistNIR.get(i).getx(), (float) DatalistNIR.get(i).gety()));
             }
-
+            for (int i = 0; i < DatalistFLUO.size(); i++) {
+                entries3.add(new Entry((float) DatalistFLUO.get(i).getx(), (float) DatalistFLUO.get(i).gety()));
+            }
       /* dataObjects= new Data[3];
 
         dataObjects[0]= new Data(1.5,1.5);
@@ -104,6 +111,7 @@ public class ChartActivity extends AppCompatActivity {
             // Decode();
             dataSet = new LineDataSet(entries, "VIS");
             dataSet2 = new LineDataSet(entries2, "NIR");
+            dataSet3= new LineDataSet(entries3, "FLUO");
             lineData = new LineData(dataSet);
             chart.setData(lineData);
 
@@ -140,8 +148,14 @@ public class ChartActivity extends AppCompatActivity {
                     chart.notifyDataSetChanged();
                     chart.invalidate(); // refresh
                 }
-                else {
+                else if (materialDesignSpinner.getText().toString().equals(SPINNERLIST2[1])) {
                     lineData = new LineData(dataSet2);
+                    chart.setData(lineData);
+                    chart.notifyDataSetChanged();
+                    chart.invalidate(); // refresh
+                }
+                else {
+                    lineData = new LineData(dataSet3);
                     chart.setData(lineData);
                     chart.notifyDataSetChanged();
                     chart.invalidate(); // refresh
@@ -185,13 +199,19 @@ public class ChartActivity extends AppCompatActivity {
             JSONArray UVArray=json2.getJSONArray("Preprocessed");
             JSONObject json3=jsonSample.getJSONObject("NIR");
             JSONArray NIRArray=json3.getJSONArray("averageAbsorbance");
+            JSONObject json4=jsonSample.getJSONObject("FLUO");
+            JSONArray FLUOArray=json4.getJSONArray("Preprocessed");
             Datalist= new ArrayList<Data>();
             DatalistNIR= new ArrayList<Data>();
+            DatalistFLUO= new ArrayList<Data>();
             for (int i=0; i<UVArray.length(); i++) {
                 Datalist.add(new Data(UVArray.getJSONObject(i).getDouble("wave"),UVArray.getJSONObject(i).getDouble("measurement")));
             }
             for (int i=0; i<NIRArray.length(); i++) {
                 DatalistNIR.add(new Data(NIRArray.getJSONObject(i).getDouble("wave"),NIRArray.getJSONObject(i).getDouble("measurement")));
+            }
+            for (int i=0; i<FLUOArray.length(); i++) {
+                DatalistFLUO.add(new Data(FLUOArray.getJSONObject(i).getDouble("wave"),FLUOArray.getJSONObject(i).getDouble("measurement")));
             }
         } catch (JSONException e) {
             e.printStackTrace();

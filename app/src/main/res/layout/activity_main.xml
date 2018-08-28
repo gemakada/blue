@@ -115,12 +115,19 @@
                 android:text="NIR Spectrometer" />
 
             <Button
-                android:id="@+id/WhiteReference"
+                android:id="@+id/WhiteReferenceVIS"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
                 android:clickable="true"
-                android:text="White Reference" />
+                android:text="White Reference VIS" />
+            <Button
+                android:id="@+id/WhiteReferenceUV"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:clickable="true"
+                android:text="White Reference UV" />
             <Button
                 android:id="@+id/Configuration"
                 android:layout_width="match_parent"

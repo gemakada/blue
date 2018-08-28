@@ -35,4 +35,26 @@
         android:layout_height="wrap_content"
         android:hint="Fluo Integration time"
         android:inputType="number" />
+
+    <EditText
+        android:id="@+id/Vw_vis"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="White Leds Current"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/V_UV"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="UV Leds Current"
+        android:inputType="number" />
+
+    <EditText
+        android:id="@+id/v_NIR"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="NIR Leds Current"
+        android:inputType="number" />
+
 </LinearLayout>
