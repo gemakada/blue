@@ -135,6 +135,13 @@
                 android:layout_marginTop="40dp"
                 android:clickable="true"
                 android:text="Configuration" />
+            <Button
+                android:id="@+id/Parse"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="40dp"
+                android:clickable="true"
+                android:text="Parse Json" />
         <LinearLayout
             android:background="@android:color/white"
             android:layout_width="match_parent"

@@ -193,24 +193,29 @@ public class ChartActivity extends AppCompatActivity {
     private void Decode(String jsonstr) {
         try {
             JSONObject json= (JSONObject) new JSONTokener(jsonstr).nextValue();
-            JSONObject jsonresponse=json.getJSONObject("Response");
-            JSONObject jsonSample=jsonresponse.getJSONObject("Sample");
+            JSONObject jsonresponse=json.getJSONObject("response");
+            JSONObject jsonSample=jsonresponse.getJSONObject("sample");
             JSONObject json2 = jsonSample.getJSONObject("VIS");
-            JSONArray UVArray=json2.getJSONArray("Preprocessed");
+            JSONArray UVArray=json2.getJSONArray("preprocessed");
             JSONObject json3=jsonSample.getJSONObject("NIR");
-            JSONArray NIRArray=json3.getJSONArray("averageAbsorbance");
+            JSONArray NIRArray=json3.getJSONArray("preprocessed");
             JSONObject json4=jsonSample.getJSONObject("FLUO");
-            JSONArray FLUOArray=json4.getJSONArray("Preprocessed");
+            JSONArray FLUOArray=json4.getJSONArray("preprocessed");
+
             Datalist= new ArrayList<Data>();
             DatalistNIR= new ArrayList<Data>();
             DatalistFLUO= new ArrayList<Data>();
             for (int i=0; i<UVArray.length(); i++) {
                 Datalist.add(new Data(UVArray.getJSONObject(i).getDouble("wave"),UVArray.getJSONObject(i).getDouble("measurement")));
             }
+            Log.e(LOG_TAG,"NIR len is"+  String.valueOf(FLUOArray.length()));
             for (int i=0; i<NIRArray.length(); i++) {
+
                 DatalistNIR.add(new Data(NIRArray.getJSONObject(i).getDouble("wave"),NIRArray.getJSONObject(i).getDouble("measurement")));
             }
+            Log.e(LOG_TAG, String.valueOf(FLUOArray.length()));
             for (int i=0; i<FLUOArray.length(); i++) {
+                Log.e(LOG_TAG, String.valueOf(i));
                 DatalistFLUO.add(new Data(FLUOArray.getJSONObject(i).getDouble("wave"),FLUOArray.getJSONObject(i).getDouble("measurement")));
             }
         } catch (JSONException e) {

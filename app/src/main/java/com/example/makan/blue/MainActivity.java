@@ -44,6 +44,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -74,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
     private Button WhiteRef;
     private Button WhiteRefUV;
     private Button OpenConfiguration;
+    private Button Parse;
     private Dialog dialog;
     private TextView status;
     private EditText tvisedit;
@@ -383,6 +388,33 @@ public class MainActivity extends AppCompatActivity {
             WhiteRef=(Button)findViewById(R.id.WhiteReferenceVIS);
             WhiteRefUV=(Button)findViewById(R.id.WhiteReferenceUV);
             OpenConfiguration=(Button)findViewById(R.id.Configuration);
+            Parse=(Button)findViewById(R.id.Parse);
+
+            Parse.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+
+                    String json = null;
+                    try {
+                        InputStream is = getBaseContext().getAssets().open("output.json");
+                        int size = is.available();
+                        byte[] buffer = new byte[size];
+                        is.read(buffer);
+                        is.close();
+                        json = new String(buffer, "UTF-8");
+                        Intent myIntent = new Intent(MainActivity.this, ChartActivity.class);
+                        myIntent.putExtra("Json",json);
+                        Log.e(LOG_TAG,json);
+                        chatController.stop();
+                        startActivity(myIntent);
+
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+
+                    }
+            }});
+
             NIR.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -400,12 +432,12 @@ public class MainActivity extends AppCompatActivity {
                         JSONObject nirLeds= new JSONObject();
 
 
-                        uvspectr.put("t_vis",tvis);
-                        uvspectr.put("t_fluo",tfluo);
-                        nirLeds.put("V_nir",V_nir);
+                        uvspectr.put("t_vis",Integer.valueOf(tvis));
+                        uvspectr.put("t_fluo",Integer.valueOf(tfluo));
+                        nirLeds.put("V_nir",Integer.valueOf(V_nir));
                         nirspectr.put("NirMicrolamps",nirLeds);
-                        visLeds.put("V_UV",V_UV);
-                        visLeds.put("Vw_vis",Vw_vis);
+                        visLeds.put("V_UV",Integer.valueOf(V_UV));
+                        visLeds.put("Vw_vis",Integer.valueOf(Vw_vis));
                         uvspectr.put("visLeds",visLeds);
                         conf.put("VisSpectrometer",uvspectr);
                         conf.put("NirSpectrometer",nirspectr);
@@ -440,7 +472,7 @@ public class MainActivity extends AppCompatActivity {
 
                     Intent myIntent = new Intent(MainActivity.this, ChartActivity.class);
                     myIntent.putExtra("Json",JsonReceive);
-                    Log.e(LOG_TAG,String.valueOf(JsonReceive.length()));
+                    Log.e(LOG_TAG,JsonReceive);
                     chatController.stop();
                     startActivity(myIntent);
 
@@ -487,12 +519,12 @@ public class MainActivity extends AppCompatActivity {
                            RequestBody.put("Use cases", Use_Case);
                             RequestBody.put("Food type", Food_Type);
                             RequestBody.put("Granularity", Granularitystr);
-                            uvspectr.put("t_vis",tvis);
-                            uvspectr.put("t_fluo",tfluo);
-                            nirLeds.put("V_nir",V_nir);
+                            uvspectr.put("t_vis",Integer.valueOf(tvis));
+                            uvspectr.put("t_fluo",Integer.valueOf(tfluo));
+                            nirLeds.put("V_nir",Integer.valueOf(V_nir));
                             nirspectr.put("NirMicrolamps",nirLeds);
-                            visLeds.put("V_UV",V_UV);
-                            visLeds.put("Vw_vis",Vw_vis);
+                            visLeds.put("V_UV",Integer.valueOf(V_UV));
+                            visLeds.put("Vw_vis",Integer.valueOf(Vw_vis));
                             uvspectr.put("visLeds",visLeds);
                             conf.put("VisSpectrometer",uvspectr);
                             conf.put("NirSpectrometer",nirspectr);
@@ -501,6 +533,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                         else {
                             request = new JSONObject();
+                            JSONObject nirLeds= new JSONObject();
+                            JSONObject nirspectr= new JSONObject();
                             JSONObject conf= new JSONObject();
                             JSONObject uvspectr= new JSONObject();
                             JSONObject visLeds= new JSONObject();
@@ -509,11 +543,12 @@ public class MainActivity extends AppCompatActivity {
                             RequestBody.put("Food type", Food_Type2);
                             RequestBody.put("Sample temperature", Temperature);
                             RequestBody.put("Exposure time", Exposure);
-                            uvspectr.put("t_vis",tvis);
-                            uvspectr.put("t_fluo",tfluo);
-                            visLeds.put("V_UV",V_UV);
-                            visLeds.put("Vw_vis",Vw_vis);
-                            uvspectr.put("visLeds",visLeds);
+                            uvspectr.put("t_vis",Integer.valueOf(tvis));
+                            uvspectr.put("t_fluo",Integer.valueOf(tfluo));
+                            nirLeds.put("V_nir",Integer.valueOf(V_nir));
+                            nirspectr.put("NirMicrolamps",nirLeds);
+                            visLeds.put("V_UV",Integer.valueOf(V_UV));
+                            visLeds.put("Vw_vis",Integer.valueOf(Vw_vis));
                             conf.put("VisSpectrometer",uvspectr);
                             RequestBody.put("configuration",conf);
                             request.put("Request", RequestBody);
@@ -548,12 +583,12 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject conf = new JSONObject();
                     try {
                         RequestBody.put("Use cases", "WhiteReferenceVIS");
-                        uvspectr.put("t_vis",tvis);
-                        uvspectr.put("t_fluo",tfluo);
-                        nirLeds.put("V_nir",V_nir);
+                        uvspectr.put("t_vis",Integer.valueOf(tvis));
+                        uvspectr.put("t_fluo",Integer.valueOf(tfluo));
+                        nirLeds.put("V_nir",Integer.valueOf(V_nir));
                         nirspectr.put("NirMicrolamps",nirLeds);
-                        visLeds.put("V_UV",V_UV);
-                        visLeds.put("Vw_vis",Vw_vis);
+                        visLeds.put("V_UV",Integer.valueOf(V_UV));
+                        visLeds.put("Vw_vis",Integer.valueOf(Vw_vis));
                         uvspectr.put("visLeds",visLeds);
                         conf.put("VisSpectrometer",uvspectr);
                         conf.put("NirSpectrometer",nirspectr);
@@ -591,12 +626,12 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject conf = new JSONObject();
                     try {
                         RequestBody.put("Use cases", "WhiteReferenceUV");
-                        uvspectr.put("t_vis",tvis);
-                        uvspectr.put("t_fluo",tfluo);
-                        nirLeds.put("V_nir",V_nir);
+                        uvspectr.put("t_vis",Integer.valueOf(tvis));
+                        uvspectr.put("t_fluo",Integer.valueOf(tfluo));
+                        nirLeds.put("V_nir",Integer.valueOf(V_nir));
                         nirspectr.put("NirMicrolamps",nirLeds);
-                        visLeds.put("V_UV",V_UV);
-                        visLeds.put("Vw_vis",Vw_vis);
+                        visLeds.put("V_UV",Integer.valueOf(V_UV));
+                        visLeds.put("Vw_vis",Integer.valueOf(Vw_vis));
                         uvspectr.put("visLeds",visLeds);
                         conf.put("VisSpectrometer",uvspectr);
                         conf.put("NirSpectrometer",nirspectr);

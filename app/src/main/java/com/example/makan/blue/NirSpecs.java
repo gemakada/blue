@@ -33,11 +33,11 @@ import java.util.Map;
  */
 
 public class NirSpecs extends AppCompatActivity {
-    private String[] Data=new String[] {"SensorID","Status","Connectivity","wavelength","Voltage","MemFrequency"};
+    private String[] Data=new String[] {"SensorID","Status","Connectivity","wavelength","Voltage","MemFrequency","Averaging"};
 
     private String[] Data2= new String[]{"140","150"};
     private static final String LOG_TAG = NirSpecs.class.getSimpleName();
-    private String[] stats= new String[6];
+    private String[] stats= new String[7];
     private List<Data>Datalist;
     private LineData lineData;
     private LineDataSet dataSet;
@@ -79,7 +79,7 @@ public class NirSpecs extends AppCompatActivity {
         }
         Map<String, String> datum;
 
-        for (int i=0; i<6; i++) {
+        for (int i=0; i<7; i++) {
             datum=new HashMap<String, String>(2);
             datum.put("title",Data[i]);
             datum.put("value",stats[i]);
@@ -125,6 +125,7 @@ public class NirSpecs extends AppCompatActivity {
             stats[3]=jsonSample.getString("wavelength");
             stats[4]=jsonSample.getString("Voltage");
             stats[5]=jsonSample.getString("MemFrequency");
+            stats[6]=jsonSample.getString("Averaging");
             JSONArray UVArray=jsonSample.getJSONArray("generatedSpectrum");
            // JSONObject json3=jsonSample.getJSONObject("NIR");
            // JSONArray NIRArray=json3.getJSONArray("averageAbsorbance");
