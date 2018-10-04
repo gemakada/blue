@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+
     <application
         android:icon="@drawable/ic_launcher"
 
@@ -39,6 +40,14 @@
             android:name="android.support.PARENT_ACTIVITY"
             android:value=".ChartActivity" />
         ></activity>
+        <activity
+            android:name="com.example.makan.blue.ImageActivity"
+            android:windowSoftInputMode="adjustPan"
+            android:parentActivityName="com.example.makan.blue.MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ImageActivity" />
+            ></activity>
         <activity
             android:name="com.example.makan.blue.NirSpecs"
             android:windowSoftInputMode="adjustPan"

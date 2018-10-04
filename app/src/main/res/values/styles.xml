@@ -20,6 +20,7 @@
         <!-- Used for the background -->
         <item name="android:background">#D8D8D8</item>
     </style>
-
+    <dimen name="card_element_margin">8dp</dimen>
+    <dimen name="main_list_universal_padding">8dp</dimen>
 
 </resources>

@@ -12,6 +12,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -34,6 +35,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,6 +47,9 @@ import org.json.JSONObject;
 import org.json.JSONTokener;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -79,6 +84,7 @@ public class MainActivity extends AppCompatActivity {
     private Button WhiteRefUV;
     private Button OpenConfiguration;
     private Button Parse;
+    private Button Image;
     private Dialog dialog;
     private TextView status;
     private EditText tvisedit;
@@ -106,10 +112,14 @@ public class MainActivity extends AppCompatActivity {
     private String Vw_vis;
     private String V_nir;
     private int ack=0;
+    private ByteArrayOutputStream imagebuffer = new ByteArrayOutputStream( );
     private boolean calibrationflag=false;
+    private ByteArrayOutputStream outputStream;
     final Context c = this;
+    private AlertDialog dia;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+      outputStream = new ByteArrayOutputStream( );
         super.onCreate(savedInstanceState);
         if (android.os.Build.VERSION.SDK_INT > 9) {
 
@@ -125,6 +135,8 @@ public class MainActivity extends AppCompatActivity {
         }
 
         setContentView(R.layout.activity_main);
+
+        dia=dialogue();
        final ArrayAdapter<String> arrayAdapter2 = new ArrayAdapter<String>(this,
                 android.R.layout.simple_dropdown_item_1line, SPINNERLIST);
        final MaterialBetterSpinner materialDesignSpinner = (MaterialBetterSpinner)
@@ -371,7 +383,7 @@ public class MainActivity extends AppCompatActivity {
         if (adapter == null) {
             Log.e(LOG_TAG, "Bluetooth not available");
         } else {
-            Log.e(LOG_TAG, "Adapter Available");
+            Log.e(LOG_TAG, adapter.getAddress());
         }
 
         if (!adapter.isEnabled()) {
@@ -389,6 +401,7 @@ public class MainActivity extends AppCompatActivity {
             WhiteRefUV=(Button)findViewById(R.id.WhiteReferenceUV);
             OpenConfiguration=(Button)findViewById(R.id.Configuration);
             Parse=(Button)findViewById(R.id.Parse);
+            Image=(Button)findViewById(R.id.Image);
 
             Parse.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -478,7 +491,18 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             });
-
+            Image.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent myIntent = new Intent(MainActivity.this, ImageActivity.class);
+                    myIntent.putExtra("Json",JsonReceive);
+                   // myIntent.putExtra("bytes",outputStream.toByteArray());
+                   // outputStream.reset();
+                    Log.e(LOG_TAG,JsonReceive);
+                    chatController.stop();
+                    startActivity(myIntent);
+                }
+            });
             btnDisConnect.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -784,23 +808,130 @@ public class MainActivity extends AppCompatActivity {
                     Log.e(LOG_TAG,"Me: " + writeMessage);
                     break;
                 case MESSAGE_READ:
-                    byte[] readBuf = (byte[]) msg.obj;
+                    int arg=(int)msg.arg2;
 
-                    String readMessage = new String(readBuf, 0, msg.arg1);
+
+                    if (arg==0 || arg==1) {
+                        double stage=(double)msg.obj;
+                        Log.e(LOG_TAG,connectingDevice.getName()+" Percetage is  " + ":  " + String.valueOf(stage));
+                        if(!dia.isShowing()) {
+                            dia.show();
+                        }
+                        if (arg==0) {
+                            ProgressBar progressBarData = (ProgressBar) dia.findViewById(R.id.progressBarData);
+                            progressBarData.setProgress((int)stage);
+                        }
+                        else {
+                            ProgressBar progressBarData = (ProgressBar) dia.findViewById(R.id.progressBarImage);
+                            progressBarData.setProgress((int)stage);
+                        }
+
+
+                    }
+                    else if (arg==3) {
+                        if(!dia.isShowing()) {
+                            dia.show();
+                        }
+                        ProgressBar progressBarData;
+                        TextView measurementstatus;
+                        switch ((String)msg.obj) {
+                            case "00":
+                                measurementstatus=(TextView) dia.findViewById(R.id.MeasurementStatusText);
+                                measurementstatus.setText("(1/3) Getting VIS Data");
+                                break;
+                            case "01":
+                                measurementstatus=(TextView) dia.findViewById(R.id.MeasurementStatusText);
+                                measurementstatus.setText("(2/3) Getting NIR Data");
+                                progressBarData= (ProgressBar) dia.findViewById(R.id.progressBarVIS);
+                                progressBarData.setProgress(100);
+                                break;
+                            case "02":
+                                measurementstatus=(TextView) dia.findViewById(R.id.MeasurementStatusText);
+                                measurementstatus.setText("(3/3) Getting FLUO Data");
+                                progressBarData = (ProgressBar) dia.findViewById(R.id.progressBarNIR);
+                                progressBarData.setProgress(100);
+                                break;
+                            case "03":
+                                measurementstatus=(TextView) dia.findViewById(R.id.MeasurementStatusText);
+                                measurementstatus.setText("Measurement Finished");
+                                progressBarData = (ProgressBar) dia.findViewById(R.id.progressBarFLUO);
+                                progressBarData.setProgress(100);
+                                break;
+                        }
+
+
+                      //  dia.dismiss();
+                    }
+                    else {
+                        if (arg==5) {
+                            byte[] readBuf = (byte[]) msg.obj;
+                            try {
+                                FileOutputStream fOut = openFileOutput("imagereceived.tif", getApplication().getBaseContext().MODE_PRIVATE);
+                                fOut.write(readBuf);
+                                fOut.flush();
+                                fOut.close();
+                                Log.e(LOG_TAG, connectingDevice.getName() + " Megethos  " + ":  " + String.valueOf(readBuf.length));
+
+
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        else {
+                            byte[] readBuf = (byte[]) msg.obj;
+                            try {
+                                FileOutputStream fOut = openFileOutput("output.txt", getApplication().getBaseContext().MODE_PRIVATE);
+                                fOut.write(readBuf);
+                                fOut.flush();
+                                fOut.close();
+                                Log.e(LOG_TAG, connectingDevice.getName() + " Megethos  " + ":  " + String.valueOf(readBuf.length));
+
+
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                   //
+                    //String json= (String) msg.obj;
+
+                   // String readMessage = new String(readBuf, 0, msg.arg1);
+
 
                    // chatMessages.add(connectingDevice.getName() + ":  " + readMessage);
                   //  chatAdapter.notifyDataSetChanged();
                  //   Toast.makeText(getApplicationContext(), readMessage,
                   //          Toast.LENGTH_SHORT).show();
                    // Log.e(LOG_TAG,connectingDevice.getName()+" Edw " + ":  " + readMessage);
-                    if (readMessage.equals("End of Response")) {
+                  /*  if (readMessage.equals("End of Response")) {
+                        byte c[] = imagebuffer.toByteArray( );
+
+                        imagebuffer= new ByteArrayOutputStream();
                         Toast.makeText(getApplicationContext(), readMessage,
                                           Toast.LENGTH_SHORT).show();
+                        try {
+                            FileOutputStream fOut = openFileOutput("Ximea.tif",getApplication().getBaseContext().MODE_PRIVATE);
+                            fOut.write(c);
+                            fOut.flush();
+                            fOut.close();
+                            //Log.e(LOG_TAG,connectingDevice.getName()+" Megethos  " + ":  " + c.length);
+
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         if (calibrationflag) {
                             Intent myIntent = new Intent(MainActivity.this, NirSpecs.class);
                             if (!checkfail(JsonReceive)) {
                                 myIntent.putExtra("Json", JsonReceive);
-                                Log.e(LOG_TAG, String.valueOf(JsonReceive.length()));
+
+                               // outputStream.reset();
+                               // Log.e(LOG_TAG, String.valueOf(JsonReceive.length()));
                                 chatController.stop();
                                 calibrationflag = false;
                                 startActivity(myIntent);
@@ -813,16 +944,22 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     else {
+                        try {
+                            imagebuffer.write(readBuf);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                         JsonReceive+=readMessage;
                         ack++;
-
-                        SendAck(ack);
+                      //  Log.e(LOG_TAG, "len is "+String.valueOf(ack) + " " + String.valueOf(readBuf.length));
+                        //SendAck(ack);
                     }
 
-                    Log.e(LOG_TAG,connectingDevice.getName()+" Edw " + ":  " + readMessage);
+                   // Log.e(LOG_TAG,connectingDevice.getName()+" Edw " + ":  " + readMessage);
 
 
                    // Decode(readMessage);
+                   */
                     break;
                 case MESSAGE_DEVICE_OBJECT:
                     connectingDevice = msg.getData().getParcelable(DEVICE_OBJECT);
@@ -1000,6 +1137,38 @@ public class MainActivity extends AppCompatActivity {
 
         return false;
     }
+
+    private AlertDialog dialogue() {
+
+        AlertDialog b=null;
+        AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        final View dialogView = inflater.inflate(R.layout.downloading, null);
+        dialogBuilder.setView(dialogView);
+        dialogBuilder.setCancelable(false);
+        final ProgressBar progressBarDataVis= dialogView.findViewById(R.id.progressBarVIS);
+        final ProgressBar progressBarDataNir= dialogView.findViewById(R.id.progressBarNIR);
+        final ProgressBar progressBarDataFluo= dialogView.findViewById(R.id.progressBarFLUO);
+        final ProgressBar progressBarData= dialogView.findViewById(R.id.progressBarData);
+        final ProgressBar progressBarDataImage= dialogView.findViewById(R.id.progressBarImage);
+        dialogBuilder.setNegativeButton("Cancel",new DialogInterface.OnClickListener(){
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                progressBarDataVis.setProgress(0);
+                progressBarDataNir.setProgress(0);
+                progressBarDataFluo.setProgress(0);
+                progressBarData.setProgress(0);
+                progressBarDataImage.setProgress(0);
+            }
+        });
+
+        b=dialogBuilder.create();
+
+        //b.show();
+        return b;
+    }
+
 
 
 }

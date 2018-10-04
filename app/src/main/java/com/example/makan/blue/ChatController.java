@@ -14,11 +14,19 @@ import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
+
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class ChatController {
@@ -30,7 +38,11 @@ public class ChatController {
     private AcceptThread acceptThread;
     private ConnectThread connectThread;
     private ReadWriteThread connectedThread;
+    private String code;
+    private int dataSize;
+    private String type;
     private int state;
+    private String datatype;
 
     static final int STATE_NONE = 0;
     static final int STATE_LISTEN = 1;
@@ -312,21 +324,112 @@ public class ChatController {
         }
 
         public void run() {
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[512];
             int bytes;
+            int state=0;
+            int first=0;
+            int dataflag=0;
+            int endflag=0;
+            double percetage;
+            double stage=0.0;
+            boolean flag=false;
+            double[] stages= {10.0,20.0,30.0,40.0,50.0,60.0,70.0,80.0,90.0,100.0};
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream( );
 
             // Keep listening to the InputStream
             while (true) {
+
                 try {
                     // Read from the InputStream
                   // BufferedReader buffereader=new BufferedReader(new InputStreamReader(inputStream));
                   //  buffereader.re
                     bytes = inputStream.read(buffer);
 
+                    String readMessage = new String(buffer,0,bytes);
+                    if (state==0) {
+                        if (Decode(readMessage) == 1) {
+                            switch (type) {
+                                case "04":
+                                    state = 1;
+                                    first = 1;
+                                    break;
+                                case "00":
+                                    state = 0;
+                                    break;
+                                case "01":
+                                    state = 0;
+                                    break;
+                                case "02":
+                                    state = 0;
+                                    break;
+                                case "03":
+                                    state = 0;
+                                    break;
+                                case "06":
+                                    state = 0;
+                                    break;
+                            }
+                        }
+                        if (state==0) {
+                            handler.obtainMessage(MainActivity.MESSAGE_READ, outputStream.toByteArray().length,3 ,
+                                    type).sendToTarget();
+                        }
+
+                    }
+                    else if (state==1) {
+
+                            if (datatype.equals("Image")) {
+                                dataflag=1;
+                                endflag=5;
+
+                            }
+                            else {
+                                dataflag=0;
+                                endflag=6;
+                            }
+                            if (readMessage.equals("End of Response")) {
+                                state=0;
+                                handler.obtainMessage(MainActivity.MESSAGE_READ, outputStream.toByteArray().length, endflag,
+                                        outputStream.toByteArray()).sendToTarget();
+                                outputStream = new ByteArrayOutputStream();
+                                stage=0.0;
+                                flag=false;
+                            }
+                            else {
+                                outputStream.write(buffer,0,bytes);
+                                percetage=((double)outputStream.size()/dataSize)*100;
+
+                                flag=false;
+                                for (int i=0; i<10; i++) {
+                                    if (percetage >= stages[i]) {
+                                        if (stage<stages[i]) {
+                                            stage=stages[i];
+                                            flag=true;
+
+                                        }
+                                        else {
+
+                                        }
+
+
+                                    }
+                                }
+
+                                if (flag) {
+
+                                    handler.obtainMessage(MainActivity.MESSAGE_READ, outputStream.toByteArray().length, dataflag,
+                                            stage).sendToTarget();
+                                    flag=false;
+                                }
+                                //  outputStream=new ByteArrayOutputStream();
+                            }
+                        }
+
+
 
                     // Send the obtained bytes to the UI Activity
-                    handler.obtainMessage(MainActivity.MESSAGE_READ, bytes, -1,
-                            buffer).sendToTarget();
+                  //  handler.obtainMessage(MainActivity.MESSAGE_READ, bytes, -1,
+                     //       buffer).sendToTarget();
                 } catch (IOException e) {
                     connectionLost();
                     // Start the service over to restart listening mode
@@ -352,6 +455,21 @@ public class ChatController {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+    private int Decode(String jsonstr) {
+        try {
+            JSONObject json= (JSONObject) new JSONTokener(jsonstr).nextValue();
+            JSONObject jsonresponse=json.getJSONObject("Response");
+            code= jsonresponse.getString("result");
+            type= jsonresponse.getString("type");
+            dataSize=jsonresponse.getInt("size");
+            datatype=jsonresponse.getString("datatype");
+            return 1;
+
+        } catch (JSONException e) {
+            return 0;
+            //e.printStackTrace();
         }
     }
 }
