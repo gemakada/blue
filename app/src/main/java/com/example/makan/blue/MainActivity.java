@@ -394,115 +394,19 @@ public class MainActivity extends AppCompatActivity {
             Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
             btnConnect = (Button) findViewById(R.id.btn_connect);
             btnDisConnect=(Button) findViewById(R.id.btn_disconnect);
-            Chart=(Button) findViewById(R.id.Chart);
+
             Send= (Button) findViewById(R.id.SendMsg);
-            NIR=(Button)findViewById(R.id.NIR);
-            WhiteRef=(Button)findViewById(R.id.WhiteReferenceVIS);
-            WhiteRefUV=(Button)findViewById(R.id.WhiteReferenceUV);
+
             OpenConfiguration=(Button)findViewById(R.id.Configuration);
-            Parse=(Button)findViewById(R.id.Parse);
-            Image=(Button)findViewById(R.id.Image);
-
-            Parse.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-
-                    String json = null;
-                    try {
-                        InputStream is = getBaseContext().getAssets().open("output.json");
-                        int size = is.available();
-                        byte[] buffer = new byte[size];
-                        is.read(buffer);
-                        is.close();
-                        json = new String(buffer, "UTF-8");
-                        Intent myIntent = new Intent(MainActivity.this, ChartActivity.class);
-                        myIntent.putExtra("Json",json);
-                        Log.e(LOG_TAG,json);
-                        chatController.stop();
-                        startActivity(myIntent);
-
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-
-                    }
-            }});
-
-            NIR.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ack=0;
-                    JsonReceive=" ";
-                    JSONObject request=null;
-                    request = new JSONObject();
-                  //  JSONObject RequestBody = new JSONObject();
-                    try {
-                        JSONObject visLeds= new JSONObject();
-                        JSONObject RequestBody = new JSONObject();
-                        JSONObject conf= new JSONObject();
-                        JSONObject uvspectr= new JSONObject();
-                        JSONObject nirspectr= new JSONObject();
-                        JSONObject nirLeds= new JSONObject();
-
-
-                        uvspectr.put("t_vis",Integer.valueOf(tvis));
-                        uvspectr.put("t_fluo",Integer.valueOf(tfluo));
-                        nirLeds.put("V_nir",Integer.valueOf(V_nir));
-                        nirspectr.put("NirMicrolamps",nirLeds);
-                        visLeds.put("V_UV",Integer.valueOf(V_UV));
-                        visLeds.put("Vw_vis",Integer.valueOf(Vw_vis));
-                        uvspectr.put("visLeds",visLeds);
-                        conf.put("VisSpectrometer",uvspectr);
-                        conf.put("NirSpectrometer",nirspectr);
-                        RequestBody.put("Use cases", "sensorCalibrationNIR");
-                        RequestBody.put("configuration",conf);
-                        request.put("Request", RequestBody);
-
-                        request.put("Request",RequestBody);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    if (request.toString()!=null) {
-                        Intent myIntent = new Intent(MainActivity.this, NirSpecs.class);
-                        //startActivity(myIntent);
-                        sendMessage(request.toString());
-                        calibrationflag=true;
-                    }
-                    else {
-                        Toast.makeText(getApplicationContext(), "No Message Set",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
 
 
 
-            Chart.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
 
 
-                    Intent myIntent = new Intent(MainActivity.this, ChartActivity.class);
-                    myIntent.putExtra("Json",JsonReceive);
-                    Log.e(LOG_TAG,JsonReceive);
-                    chatController.stop();
-                    startActivity(myIntent);
 
-                }
-            });
-            Image.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent myIntent = new Intent(MainActivity.this, ImageActivity.class);
-                    myIntent.putExtra("Json",JsonReceive);
-                   // myIntent.putExtra("bytes",outputStream.toByteArray());
-                   // outputStream.reset();
-                    Log.e(LOG_TAG,JsonReceive);
-                    chatController.stop();
-                    startActivity(myIntent);
-                }
-            });
+
+
+
             btnDisConnect.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -592,92 +496,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            WhiteRef.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ack=0;
-                    JsonReceive=" ";
-                    JSONObject request=null;
-                    request = new JSONObject();
-                    JSONObject RequestBody = new JSONObject();
-                    JSONObject uvspectr = new JSONObject();
-                    JSONObject nirspectr= new JSONObject();
-                    JSONObject nirLeds= new JSONObject();
-                    JSONObject visLeds = new JSONObject();
-                    JSONObject conf = new JSONObject();
-                    try {
-                        RequestBody.put("Use cases", "WhiteReferenceVIS");
-                        uvspectr.put("t_vis",Integer.valueOf(tvis));
-                        uvspectr.put("t_fluo",Integer.valueOf(tfluo));
-                        nirLeds.put("V_nir",Integer.valueOf(V_nir));
-                        nirspectr.put("NirMicrolamps",nirLeds);
-                        visLeds.put("V_UV",Integer.valueOf(V_UV));
-                        visLeds.put("Vw_vis",Integer.valueOf(Vw_vis));
-                        uvspectr.put("visLeds",visLeds);
-                        conf.put("VisSpectrometer",uvspectr);
-                        conf.put("NirSpectrometer",nirspectr);
-                        RequestBody.put("configuration",conf);
-                        request.put("Request", RequestBody);
 
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    if (request.toString()!=null) {
-                        Intent myIntent = new Intent(MainActivity.this, NirSpecs.class);
-                        //startActivity(myIntent);
-                        sendMessage(request.toString());
 
-                    }
-                    else {
-                        Toast.makeText(getApplicationContext(), "No Message Set",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-            });
-            WhiteRefUV.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ack=0;
-                    JsonReceive=" ";
-                    JSONObject request=null;
-                    request = new JSONObject();
-                    JSONObject RequestBody = new JSONObject();
-                    JSONObject uvspectr = new JSONObject();
-                    JSONObject nirspectr= new JSONObject();
-                    JSONObject nirLeds= new JSONObject();
-                    JSONObject visLeds = new JSONObject();
-                    JSONObject conf = new JSONObject();
-                    try {
-                        RequestBody.put("Use cases", "WhiteReferenceUV");
-                        uvspectr.put("t_vis",Integer.valueOf(tvis));
-                        uvspectr.put("t_fluo",Integer.valueOf(tfluo));
-                        nirLeds.put("V_nir",Integer.valueOf(V_nir));
-                        nirspectr.put("NirMicrolamps",nirLeds);
-                        visLeds.put("V_UV",Integer.valueOf(V_UV));
-                        visLeds.put("Vw_vis",Integer.valueOf(Vw_vis));
-                        uvspectr.put("visLeds",visLeds);
-                        conf.put("VisSpectrometer",uvspectr);
-                        conf.put("NirSpectrometer",nirspectr);
-                        RequestBody.put("configuration",conf);
-                        request.put("Request", RequestBody);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    if (request.toString()!=null) {
-                        Intent myIntent = new Intent(MainActivity.this, NirSpecs.class);
-                        //startActivity(myIntent);
-                        sendMessage(request.toString());
-
-                    }
-                    else {
-                        Toast.makeText(getApplicationContext(), "No Message Set",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-
-            });
             OpenConfiguration.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

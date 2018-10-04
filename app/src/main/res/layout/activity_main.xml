@@ -99,58 +99,14 @@
                 android:text="Send Message" />
 
             <Button
-                android:id="@+id/Chart"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                android:clickable="true"
-                android:text="Chart" />
-
-            <Button
-                android:id="@+id/NIR"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                android:clickable="true"
-                android:text="NIR Spectrometer" />
-
-            <Button
-                android:id="@+id/WhiteReferenceVIS"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                android:clickable="true"
-                android:text="White Reference VIS" />
-            <Button
-                android:id="@+id/WhiteReferenceUV"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                android:clickable="true"
-                android:text="White Reference UV" />
-            <Button
                 android:id="@+id/Configuration"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="40dp"
                 android:clickable="true"
                 android:text="Configuration" />
-            <Button
-            android:id="@+id/Parse"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="40dp"
-            android:clickable="true"
-            android:text="Parse Json" />
-            <Button
-                android:id="@+id/Image"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                android:clickable="true"
-                android:text="Parse Image" />
 
-        <LinearLayout
+            <LinearLayout
             android:background="@android:color/white"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
