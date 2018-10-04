@@ -60,7 +60,7 @@ import java.util.Set;
  * Created by makan on 16/1/2018.
  */
 
-public class MainActivity extends AppCompatActivity { //synced
+public class MainActivity extends AppCompatActivity {
     String[] SPINNERLIST = {"Mycotoxins detection", "Food spoilage"};
     String[] SPINNERLIST2 = {"Maize flour","Skimmed milk powder","Paprika powder","Almond","Peanuts"};
     String[] SPINNERLIST3 = {"Low","Medium","High"};
