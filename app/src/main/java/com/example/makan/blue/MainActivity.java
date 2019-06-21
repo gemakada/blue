@@ -6,15 +6,18 @@ import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.os.StrictMode;
 import android.renderscript.Sampler;
@@ -70,10 +73,12 @@ public class MainActivity extends AppCompatActivity {
     String[] Foodlist2={"Rocket","Fish"};
     String[] Templist={"8","4","12"};
     String[] Explist={"0","14","24","38","48","86","110","134","158"};
+    private BleConnectionService mBluetoothLeService;
     private ArrayList<Data> Datalist;
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private final static int REQUEST_ENABLE_BT = 1;
     private ArrayAdapter<String> discoveredDevicesAdapter;
+    private ArrayAdapter<String> leDeviceListAdapter;
     private Button btnConnect;
     private Button btnDisConnect;
     private Button Send;
@@ -117,6 +122,26 @@ public class MainActivity extends AppCompatActivity {
     private ByteArrayOutputStream outputStream;
     final Context c = this;
     private AlertDialog dia;
+
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            mBluetoothLeService = ((BleConnectionService.LocalBinder) service).getService();
+            if (!mBluetoothLeService.initialize()) {
+               Log.e(LOG_TAG, "Unable to initialize Bluetooth");
+//                finish();
+//            }
+                // Automatically connects to the device upon successful start-up initialization.
+                //    mBluetoothLeService.connect(mDeviceAddress);
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            mBluetoothLeService = null;
+        }
+    };
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
       outputStream = new ByteArrayOutputStream( );
@@ -541,6 +566,8 @@ public class MainActivity extends AppCompatActivity {
             });
 
         }
+        Intent gattServiceIntent = new Intent(this, BleConnectionService.class);
+        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
     }
 
     public void onStart() {
@@ -803,13 +830,16 @@ public class MainActivity extends AppCompatActivity {
             adapter.cancelDiscovery();
         }
         adapter.startDiscovery();
-
+        adapter.startLeScan(leScanCallback);
         ArrayAdapter<String> pairedDevicesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         discoveredDevicesAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
+        leDeviceListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1);
         ListView listView = (ListView) dialog.findViewById(R.id.pairedDeviceList);
         ListView listView2 = (ListView) dialog.findViewById(R.id.discoveredDeviceList);
+        ListView listView3 = (ListView) dialog.findViewById(R.id.discoveredBLEDeviceList);
         listView.setAdapter(pairedDevicesAdapter);
         listView2.setAdapter(discoveredDevicesAdapter);
+        listView3.setAdapter(leDeviceListAdapter);
 
         IntentFilter filter = new IntentFilter(BluetoothDevice.ACTION_FOUND);
         registerReceiver(discoveryFinishReceiver, filter);
@@ -859,10 +889,33 @@ public class MainActivity extends AppCompatActivity {
                 String info = ((TextView) view).getText().toString();
                 String address = info.substring(info.length() - 17);
 
-                connectToDevice(address);
+                //connectToDevice(address);
                 dialog.dismiss();
             }
         });
+
+        listView3.setOnItemClickListener(new AdapterView.OnItemClickListener(){
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                adapter.cancelDiscovery();
+                String info = ((TextView) view).getText().toString();
+                String address = info.substring(info.length() - 17);
+                Log.e(LOG_TAG,address);
+                if (mBluetoothLeService!=null) {
+
+                }
+                else{
+                    Log.e(LOG_TAG,"Null Reference");
+                }
+                mBluetoothLeService.connect(address);
+//                String info = ((TextView) view).getText().toString();
+//                String address = info.substring(info.length() - 17);
+//
+//                connectToDevice(address);
+                dialog.dismiss();
+            }
+        });
+
 
 
 
@@ -896,7 +949,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
+    //private LeDeviceListAdapter leDeviceListAdapter;
+    // Device scan callback.
+    private BluetoothAdapter.LeScanCallback leScanCallback =
+            new BluetoothAdapter.LeScanCallback() {
+                @Override
+                public void onLeScan(final BluetoothDevice device, int rssi,
+                                     byte[] scanRecord) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            leDeviceListAdapter.add(device.getName() + "\n" + device.getAddress());
+                            //leDeviceListAdapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+            };
     private final BroadcastReceiver discoveryFinishReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {

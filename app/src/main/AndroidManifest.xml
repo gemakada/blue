@@ -30,7 +30,7 @@
 
 
 
-            ></activity>
+            </activity>
 
         <activity
         android:name="com.example.makan.blue.ChartActivity"
@@ -39,7 +39,7 @@
         <meta-data
             android:name="android.support.PARENT_ACTIVITY"
             android:value=".ChartActivity" />
-        ></activity>
+        </activity>
         <activity
             android:name="com.example.makan.blue.ImageActivity"
             android:windowSoftInputMode="adjustPan"
@@ -47,7 +47,7 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ImageActivity" />
-            ></activity>
+            </activity>
         <activity
             android:name="com.example.makan.blue.NirSpecs"
             android:windowSoftInputMode="adjustPan"
@@ -55,7 +55,9 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".NirSpecs" />
-            ></activity>
+            </activity>
+
+        <service android:name=".BleConnectionService" />
     </application>
 
 
