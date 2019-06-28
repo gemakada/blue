@@ -4,4 +4,19 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name='colorToolbar'>	#2F4F4F</color>
+    <color name="green">#61BD36</color>
+    <color name="grey">#2c3e50</color>
+    <color name="textColorOnDark">#ffffff</color>
+    <color name="blue">#4A8CE3</color>
+    <color name="white">#ffffff</color>
+    <color name="darkGrey">#595959</color>
+
+    <color name="light_font">#FBFBFB</color>
+    <color name="grey_font">#ff9e9e9e</color>
+    <color name="text_shadow">#7F000000</color>
+    <color name="text_shadow_white">#FFFFFF</color>
+    <color name="light_grey">#e4e4e4</color>
+    <color name="light_grey_transparent">#33e4e4e4</color>
+    <color name="middleBlue">#457E9F</color>
+
 </resources>

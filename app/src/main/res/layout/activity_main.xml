@@ -90,100 +90,22 @@
                 android:clickable="false"
                 android:text="Disconnect" />
 
-            <Button
-                android:id="@+id/SendMsg"
+
+            <FrameLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="com.example.makan.blue.MainActivity">
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                android:clickable="true"
-                android:text="Send Message" />
+                android:orientation="horizontal"
+                android:clipToPadding="false"
+                android:overScrollMode="never" />
+            </FrameLayout>
 
-            <Button
-                android:id="@+id/Configuration"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="40dp"
-                android:clickable="true"
-                android:text="Configuration" />
-
-            <LinearLayout
-            android:background="@android:color/white"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_alignParentBottom="true"
-            android:orientation="vertical"
-            android:weightSum="4">
-            <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
-                android:id="@+id/android_material_design_spinner"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:hint="Material Design Spinner"
-                android:textColorHint="#05ab9a"
-                app:met_floatingLabel="normal"
-                android:layout_marginTop="16dp" />
-
-            <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
-            android:id="@+id/android_material_design_spinner3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:hint="Food Type"
-            android:textColorHint="#05ab9a"
-            app:met_floatingLabel="normal"
-            android:layout_marginTop="16dp" />
-
-            <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
-                android:id="@+id/android_material_design_spinner2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:hint="Granularity"
-                android:textColorHint="#05ab9a"
-                app:met_floatingLabel="normal"
-                android:layout_marginTop="16dp" />
-
-            <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
-                android:id="@+id/android_material_design_spinner_food2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:hint="FoodType"
-                android:textColorHint="#05ab9a"
-                app:met_floatingLabel="normal"
-                android:layout_marginTop="16dp" />
-            <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
-                android:id="@+id/android_material_design_spinner_Temperature"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:hint="Temperature"
-                android:textColorHint="#05ab9a"
-                app:met_floatingLabel="normal"
-                android:layout_marginTop="16dp" />
-
-            <com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner
-                android:id="@+id/android_material_design_spinner_exposure"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                android:hint="Exposure Hours"
-                android:textColorHint="#05ab9a"
-                app:met_floatingLabel="normal"
-                android:layout_marginTop="16dp" />
-
-        </LinearLayout>
-            <ProgressBar
-                android:id="@+id/progressBar"
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:indeterminate="false"
-                android:max="100"
-                android:progress="50"
-                android:secondaryProgress="50"
-
-                />
 
         </LinearLayout>
 

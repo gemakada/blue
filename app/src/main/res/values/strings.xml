@@ -5,4 +5,5 @@
     <string name="custom_name">Your Name:</string>
     <string name="custom_email">your email:</string>
     <string name="custom_feedback">your message:</string>
+    <string name="automatic">Automatic Unlocking</string>
 </resources>
