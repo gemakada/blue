@@ -2,11 +2,14 @@ package com.example.makan.blue.ViewHolders;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.TextView;
 import com.example.makan.blue.interfaces.listviewListener;
 import com.example.makan.blue.MainActivity;
@@ -24,6 +27,7 @@ public class PlayersDataAdapter  extends RecyclerView.Adapter<PlayersDataAdapter
     public class PlayerViewHolder extends RecyclerView.ViewHolder {
         private TextView name, nationality, club, rating, age;
         private Button unlockbtn;
+        SwitchCompat automatic;
 
         public PlayerViewHolder(View view) {
             super(view);
@@ -32,6 +36,8 @@ public class PlayersDataAdapter  extends RecyclerView.Adapter<PlayersDataAdapter
             //club = (TextView) view.findViewById(R.id.club);
             rating = (TextView) view.findViewById(R.id.rating);
             unlockbtn = (Button) view.findViewById(R.id.unlock);
+            automatic = (SwitchCompat) view.findViewById(R.id.switchAutomatic);
+
             //age = (TextView) view.findViewById(R.id.age);
         }
     }
@@ -69,6 +75,18 @@ public class PlayersDataAdapter  extends RecyclerView.Adapter<PlayersDataAdapter
                 // btnDisConnect.setEnabled(false);
             }
         });
+
+        holder.automatic.setOnCheckedChangeListener(new  CompoundButton.OnCheckedChangeListener() {
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) {
+                    activityListener.onSwitchChange(true);
+                    Log.e(LOG_TAG, "checked: " );
+                } else {
+                    activityListener.onSwitchChange(false);
+                    Log.e(LOG_TAG, "not checked: " );
+                }
+            }
+        });
         //holder.age.setText(player.getAge().toString());
     }
 
@@ -80,7 +98,7 @@ public class PlayersDataAdapter  extends RecyclerView.Adapter<PlayersDataAdapter
     public void setRSSI(String rssi) {
         double _rssi = Double.parseDouble(rssi);
         Double truncatedDouble = BigDecimal.valueOf(_rssi)
-                .setScale(3, RoundingMode.HALF_UP)
+                .setScale(1, RoundingMode.HALF_UP)
                 .doubleValue();
         int _irssi = (int)_rssi;
         for (int i=0; i<players.size(); i++) {

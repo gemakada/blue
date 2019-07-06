@@ -447,9 +447,25 @@ public class MainActivity extends AppCompatActivity implements listviewListener 
     };
 
     @Override
-    public void onListViewClickButton(int item) {
+    public void onListViewClickButton(int item)
+    {
+        if (mBluetoothLeService!=null) {
+
+            mBluetoothLeService.connect("DF:FB:AA:DB:60:B2");
+        }
         Log.e(LOG_TAG,"Interface workign");
     }
+
+    @Override
+    public void onSwitchChange(boolean state) {
+        if (state){
+            mBluetoothLeService.ActivateAutomaticControl();
+        }
+        else {
+            mBluetoothLeService.DeactivateAutomaticControl();
+        }
+        }
+
 
 
 

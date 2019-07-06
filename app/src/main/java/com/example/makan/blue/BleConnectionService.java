@@ -42,7 +42,7 @@ public class BleConnectionService extends Service  {
     //private int connectionState = STATE_DISCONNECTED;
     private Intent rssiIntent = new Intent(ACTION_RSSI);
     private int mConnectionState = STATE_DISCONNECTED;
-
+    private boolean automaticFlag;
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
@@ -74,6 +74,8 @@ public class BleConnectionService extends Service  {
      * @return Return true if the initialization is successful.
      */
     public boolean initialize() {
+
+        automaticFlag=false;
 
         // For API level 18 and above, get a reference to BluetoothAdapter through
         // BluetoothManager.
@@ -176,7 +178,7 @@ public class BleConnectionService extends Service  {
 
                         sendToActivity(res);
                         Log.w(TAG, String.format("Distance is" + String.valueOf(item.getAverage())));
-                        if ((distance<2)&&(flag==false)) {
+                        if ((distance<2)&&(flag==false)&&(automaticFlag==true)) {
                             BluetoothGattCharacteristic characteristic = gatt.getService(UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")).getCharacteristic(UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"));
                             byte [] array = {13,9,10,0,9,14,11,10,1,6,3,6,13,9,0,12};
                             characteristic.setValue(array);
@@ -354,6 +356,13 @@ public class BleConnectionService extends Service  {
 
         }
 
+    }
+
+    public void ActivateAutomaticControl() {
+        automaticFlag = true;
+    }
+    public void DeactivateAutomaticControl() {
+        automaticFlag =false;
     }
 
     void sendToActivity(String rssi) {
