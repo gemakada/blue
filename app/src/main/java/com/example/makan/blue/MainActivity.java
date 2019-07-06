@@ -43,7 +43,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
+import com.example.makan.blue.interfaces.listviewListener;
 import com.example.makan.blue.ViewHolders.Player;
 import com.example.makan.blue.ViewHolders.PlayersDataAdapter;
 import com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner;
@@ -68,7 +68,7 @@ import java.util.Set;
  * Created by makan on 16/1/2018.
  */
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements listviewListener {
     private BleConnectionService mBluetoothLeService;
     private ArrayList<Data> Datalist;
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
@@ -272,7 +272,8 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
-        mAdapter = new PlayersDataAdapter(players);
+        mAdapter = new PlayersDataAdapter(players,this);
+
     }
 
     private void RefreshRecycle(String srri) {
@@ -443,6 +444,11 @@ public class MainActivity extends AppCompatActivity {
             RefreshRecycle(rssi);
         }
     };
+
+    @Override
+    public void onListViewClickButton(int item) {
+        Log.e(LOG_TAG,"Interface workign");
+    }
 
 
 

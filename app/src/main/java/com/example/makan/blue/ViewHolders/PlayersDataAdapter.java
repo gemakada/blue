@@ -1,5 +1,6 @@
 package com.example.makan.blue.ViewHolders;
 
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -7,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-
+import com.example.makan.blue.interfaces.listviewListener;
 import com.example.makan.blue.MainActivity;
 import com.example.makan.blue.R;
 
@@ -16,6 +17,7 @@ import java.util.List;
 public class PlayersDataAdapter  extends RecyclerView.Adapter<PlayersDataAdapter.PlayerViewHolder> {
     private List<Player> players;
     private static final String LOG_TAG = PlayersDataAdapter.class.getSimpleName();
+    public listviewListener activityListener;
 
     public class PlayerViewHolder extends RecyclerView.ViewHolder {
         private TextView name, nationality, club, rating, age;
@@ -32,8 +34,10 @@ public class PlayersDataAdapter  extends RecyclerView.Adapter<PlayersDataAdapter
         }
     }
 
-    public PlayersDataAdapter(List<Player> players) {
+    public PlayersDataAdapter(List<Player> players, Context con) {
+
         this.players = players;
+        this.activityListener = ((listviewListener) con);
     }
 
     @Override
@@ -57,6 +61,7 @@ public class PlayersDataAdapter  extends RecyclerView.Adapter<PlayersDataAdapter
 
 
                 Log.e(LOG_TAG, "Button Pressed: "+String.valueOf(position) );
+                activityListener.onListViewClickButton(position);
                // mBluetoothLeService.disconnect();
                 //  chatController.stop();
                 // btnDisConnect.setEnabled(false);
