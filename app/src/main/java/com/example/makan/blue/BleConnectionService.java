@@ -43,6 +43,7 @@ public class BleConnectionService extends Service  {
     private Intent rssiIntent = new Intent(ACTION_RSSI);
     private int mConnectionState = STATE_DISCONNECTED;
     private boolean automaticFlag;
+    private boolean singleFlag=false;
     private static final int STATE_DISCONNECTED = 0;
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
@@ -178,18 +179,22 @@ public class BleConnectionService extends Service  {
 
                         sendToActivity(res);
                         Log.w(TAG, String.format("Distance is" + String.valueOf(item.getAverage())));
-                        if ((distance<2)&&(flag==false)&&(automaticFlag==true)) {
+                        if ((distance<2)&&(flag==false)&&((automaticFlag==true)||(singleFlag==true))) {
                             BluetoothGattCharacteristic characteristic = gatt.getService(UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")).getCharacteristic(UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"));
                             byte [] array = {13,9,10,0,9,14,11,10,1,6,3,6,13,9,0,12};
                             characteristic.setValue(array);
                             gatt.writeCharacteristic(characteristic);
+                            if (singleFlag==true) {
+                                singleFlag=false;
+                            }
 
                            // flag = true;
-                            gatt.disconnect();
+                            disconnect();
 
                         }
                         else {
-                            gatt.disconnect();
+                            singleFlag=false;
+                            disconnect();
                         }
 
                     }
@@ -315,8 +320,14 @@ public class BleConnectionService extends Service  {
                 if ((mConnectionState!=STATE_CONNECTED)&&(mConnectionState!=STATE_CONNECTING)) {
                     if (f==0) {
                         Log.w(TAG,"Trying to Connect");
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
                         connect("DF:FB:AA:DB:60:B2");
-                       // f++;
+
+                        // f++;
                     }
 
 
@@ -364,6 +375,9 @@ public class BleConnectionService extends Service  {
     public void DeactivateAutomaticControl() {
         automaticFlag =false;
     }
+    public void Single() {
+        singleFlag=true;
+    }
 
     void sendToActivity(String rssi) {
         Log.w(TAG,"Sending to Activity result:"+ rssi );
@@ -374,6 +388,7 @@ public class BleConnectionService extends Service  {
 
 
     }
+
 
     void restartLescan() {
         leScanerThread = new LEscan();

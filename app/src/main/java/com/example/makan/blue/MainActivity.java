@@ -155,20 +155,20 @@ public class MainActivity extends AppCompatActivity implements listviewListener 
         }
             Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
             btnConnect = (Button) findViewById(R.id.btn_connect);
-            btnDisConnect=(Button) findViewById(R.id.btn_disconnect);
+            //btnDisConnect=(Button) findViewById(R.id.btn_disconnect);
 
 
-            btnDisConnect.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-
-
-                    Log.e(LOG_TAG, "disconnect");
-                    mBluetoothLeService.disconnect();
-                  //  chatController.stop();
-                   // btnDisConnect.setEnabled(false);
-                }
-            });
+//            btnDisConnect.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//
+//
+//                    Log.e(LOG_TAG, "disconnect");
+//                    mBluetoothLeService.disconnect();
+//                  //  chatController.stop();
+//                   // btnDisConnect.setEnabled(false);
+//                }
+//            });
             btnConnect.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -450,8 +450,7 @@ public class MainActivity extends AppCompatActivity implements listviewListener 
     public void onListViewClickButton(int item)
     {
         if (mBluetoothLeService!=null) {
-
-            mBluetoothLeService.connect("DF:FB:AA:DB:60:B2");
+           mBluetoothLeService.Single();
         }
         Log.e(LOG_TAG,"Interface workign");
     }

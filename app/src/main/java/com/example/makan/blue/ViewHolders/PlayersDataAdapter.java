@@ -32,7 +32,7 @@ public class PlayersDataAdapter  extends RecyclerView.Adapter<PlayersDataAdapter
         public PlayerViewHolder(View view) {
             super(view);
             name = (TextView) view.findViewById(R.id.name);
-            nationality = (TextView) view.findViewById(R.id.nationality);
+            //nationality = (TextView) view.findViewById(R.id.nationality);
             //club = (TextView) view.findViewById(R.id.club);
             rating = (TextView) view.findViewById(R.id.rating);
             unlockbtn = (Button) view.findViewById(R.id.unlock);
@@ -60,7 +60,7 @@ public class PlayersDataAdapter  extends RecyclerView.Adapter<PlayersDataAdapter
     public void onBindViewHolder(PlayerViewHolder holder, final int position) {
         Player player = players.get(position);
         holder.name.setText(player.getName());
-        holder.nationality.setText(player.getNationality());
+        //holder.nationality.setText(player.getNationality());
         //holder.club.setText(player.getClub());
         holder.rating.setText(player.getRating().toString());
         holder.unlockbtn.setOnClickListener(new View.OnClickListener() {
