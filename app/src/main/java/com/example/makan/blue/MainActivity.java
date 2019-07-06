@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private PlayersDataAdapter mAdapter;
     private Dialog dialog;
     private TextView status;
-
+    private final String ACTION_RSSI = "com.example.makan.RSSI";
     private BluetoothAdapter adapter;
 
     public static final int MESSAGE_STATE_CHANGE = 1;
@@ -150,10 +150,9 @@ public class MainActivity extends AppCompatActivity {
         }
 
         if (!adapter.isEnabled()) {
-            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
-        } else {
-
+//            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+//            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+        }
             Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
             btnConnect = (Button) findViewById(R.id.btn_connect);
             btnDisConnect=(Button) findViewById(R.id.btn_disconnect);
@@ -165,8 +164,9 @@ public class MainActivity extends AppCompatActivity {
 
 
                     Log.e(LOG_TAG, "disconnect");
-                    chatController.stop();
-                    btnDisConnect.setEnabled(false);
+                    mBluetoothLeService.disconnect();
+                  //  chatController.stop();
+                   // btnDisConnect.setEnabled(false);
                 }
             });
             btnConnect.setOnClickListener(new View.OnClickListener() {
@@ -177,7 +177,15 @@ public class MainActivity extends AppCompatActivity {
                     Log.e(LOG_TAG, "lalalal");
                     if (ContextCompat.checkSelfPermission(getBaseContext(), Manifest.permission.ACCESS_FINE_LOCATION)
                             == PackageManager.PERMISSION_GRANTED) {
-                        showPrinterPickDialog();
+
+                        if (!adapter.isEnabled()) {
+                            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+                        }
+                        else {
+                            showPrinterPickDialog();
+                        }
+
                     }
                 }
             });
@@ -186,7 +194,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        }
+
         Intent gattServiceIntent = new Intent(this, BleConnectionService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
@@ -266,6 +274,14 @@ public class MainActivity extends AppCompatActivity {
 
         mAdapter = new PlayersDataAdapter(players);
     }
+
+    private void RefreshRecycle(String srri) {
+
+            mAdapter.setRSSI(srri);
+            mAdapter.notifyDataSetChanged();
+
+
+    }
     private void showPrinterPickDialog () {
         dialog= new Dialog(this);
         dialog.setContentView(R.layout.device_list);
@@ -291,7 +307,7 @@ public class MainActivity extends AppCompatActivity {
         // Register for broadcasts when discovery has finished
         filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         registerReceiver(discoveryFinishReceiver, filter);
-
+        registerReceiver(BleReceiver, new IntentFilter(ACTION_RSSI));
         adapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
 
@@ -369,6 +385,7 @@ public class MainActivity extends AppCompatActivity {
         switch (requestCode) {
             case REQUEST_ENABLE_BLUETOOTH:
                 if (resultCode == Activity.RESULT_OK) {
+                    showPrinterPickDialog();
                    // chatController = new ChatController(this, handler);
                 } else {
                     Toast.makeText(this, "Bluetooth still disabled, turn off application!", Toast.LENGTH_SHORT).show();
@@ -418,6 +435,14 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private final BroadcastReceiver BleReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String rssi = intent.getStringExtra("RSSI");
+           Log.v(LOG_TAG,intent.getStringExtra("RSSI"));
+            RefreshRecycle(rssi);
+        }
+    };
 
 
 

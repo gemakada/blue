@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -32,11 +33,12 @@ public class BleConnectionService extends Service  {
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothGatt mBluetoothGatt;
     private String mBluetoothDeviceAddress;
+    private final String ACTION_RSSI = "com.example.makan.RSSI";
     private boolean flag =false;
     Rolling item;
     private  RssiReader reader = new RssiReader();
     //private int connectionState = STATE_DISCONNECTED;
-
+    private Intent rssiIntent = new Intent(ACTION_RSSI);
     private int mConnectionState = STATE_DISCONNECTED;
 
     private static final int STATE_DISCONNECTED = 0;
@@ -70,6 +72,7 @@ public class BleConnectionService extends Service  {
      * @return Return true if the initialization is successful.
      */
     public boolean initialize() {
+
         // For API level 18 and above, get a reference to BluetoothAdapter through
         // BluetoothManager.
         if (mBluetoothManager == null) {
@@ -106,6 +109,7 @@ public class BleConnectionService extends Service  {
                         reader.cancel(true);
                         intentAction = ACTION_GATT_DISCONNECTED;
                         mConnectionState = STATE_DISCONNECTED;
+                        reader.cancel(true);
                         Log.i(TAG, "Disconnected from GATT server.");
                      //   broadcastUpdate(intentAction);
                     }
@@ -120,12 +124,15 @@ public class BleConnectionService extends Service  {
                         item.add(distance);
                        // Log.w(TAG, String.format("BluetoothGatt ReadRssi[%d]", rssi));
                         Log.w(TAG, "Distance is "+String.valueOf(item.getAverage()));
+
+                        sendToActivity(String.valueOf(item.getAverage()));
                         if ((distance<2)&&(flag==false)) {
                             BluetoothGattCharacteristic characteristic = gatt.getService(UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")).getCharacteristic(UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"));
                             byte [] array = {13,9,10,0,9,14,11,10,1,6,3,6,13,9,0,12};
                             characteristic.setValue(array);
                             gatt.writeCharacteristic(characteristic);
                             flag = true;
+
                         }
 
                     }
@@ -156,7 +163,17 @@ public class BleConnectionService extends Service  {
                         //RssiReader reader = new RssiReader();
                        // Rolling item;
                         item = new Rolling(100);
-                        reader.execute(gatt);
+                        Log.w(TAG, "Statis is " + String.valueOf(AsyncTask.Status.RUNNING));
+                        if (String.valueOf(reader.getStatus()).equals(String.valueOf(AsyncTask.Status.PENDING)) ) {
+
+                            reader.execute(gatt);
+                        }
+                        else {
+                            reader.cancel(true);
+                            reader = new RssiReader();
+                            reader.execute(gatt);
+                        }
+
 
                        // broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
                     } else {
@@ -208,9 +225,22 @@ public class BleConnectionService extends Service  {
         // parameter to false.
         mBluetoothGatt = device.connectGatt(this, false, gattCallback);
         mBluetoothGatt.connect();
+
         Log.d(TAG, "Trying to create a new connection.");
         mBluetoothDeviceAddress = address;
         mConnectionState = STATE_CONNECTING;
+        return true;
+    }
+
+    public boolean disconnect() {
+
+        if (mConnectionState==STATE_CONNECTED) {
+            if (mBluetoothGatt!=null) {
+                Log.v(TAG, "Disconnecting from" + String.valueOf(mBluetoothGatt.getDevice().getAddress()));
+                mBluetoothGatt.disconnect();
+
+            }
+        }
         return true;
     }
 
@@ -234,6 +264,15 @@ public class BleConnectionService extends Service  {
             Log.w(TAG,"Terminated Thread");
 
         }
+
+    }
+
+    void sendToActivity(String rssi) {
+        Bundle extras = new Bundle();
+        extras.putString("RSSI",rssi);
+        rssiIntent.putExtras(extras);
+        this.sendBroadcast(rssiIntent);
+
 
     }
     public class Rolling {
