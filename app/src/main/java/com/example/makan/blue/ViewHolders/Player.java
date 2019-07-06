@@ -3,7 +3,8 @@ package com.example.makan.blue.ViewHolders;
 public class Player {
 
     private String name, nationality, club;
-    private Integer rating, age;
+    private Integer  age;
+    private Double rating;
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
@@ -14,8 +15,8 @@ public class Player {
     public String getClub() { return club; }
     public void setClub(String club) { this.club = club; }
 
-    public Integer getRating() { return rating; }
-    public void setRating(Integer rating) { this.rating = rating; }
+    public Double getRating() { return rating; }
+    public void setRating(Double rating) { this.rating = rating; }
 
     public Integer getAge() { return age; }
     public void setAge(Integer age) { this.age = age; }

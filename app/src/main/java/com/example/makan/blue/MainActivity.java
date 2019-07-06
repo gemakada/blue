@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements listviewListener 
 
 
 
-
+        registerReceiver(BleReceiver, new IntentFilter(ACTION_RSSI));
         Intent gattServiceIntent = new Intent(this, BleConnectionService.class);
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements listviewListener 
                 player.setName(st[0]);
                 player.setNationality(st[1]);
                 player.setClub(st[4]);
-                player.setRating(Integer.parseInt(st[9]));
+                player.setRating(Double.valueOf(st[9]));
                player.setAge(Integer.parseInt(st[14]));
                 players.add(player);
             }
@@ -440,8 +440,9 @@ public class MainActivity extends AppCompatActivity implements listviewListener 
         @Override
         public void onReceive(Context context, Intent intent) {
             String rssi = intent.getStringExtra("RSSI");
-           Log.v(LOG_TAG,intent.getStringExtra("RSSI"));
+           Log.v(LOG_TAG,"received Rssi to main: "+intent.getStringExtra("RSSI"));
             RefreshRecycle(rssi);
+
         }
     };
 

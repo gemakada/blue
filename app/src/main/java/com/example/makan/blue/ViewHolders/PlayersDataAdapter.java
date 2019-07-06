@@ -12,6 +12,8 @@ import com.example.makan.blue.interfaces.listviewListener;
 import com.example.makan.blue.MainActivity;
 import com.example.makan.blue.R;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 public class PlayersDataAdapter  extends RecyclerView.Adapter<PlayersDataAdapter.PlayerViewHolder> {
@@ -77,9 +79,12 @@ public class PlayersDataAdapter  extends RecyclerView.Adapter<PlayersDataAdapter
 
     public void setRSSI(String rssi) {
         double _rssi = Double.parseDouble(rssi);
+        Double truncatedDouble = BigDecimal.valueOf(_rssi)
+                .setScale(3, RoundingMode.HALF_UP)
+                .doubleValue();
         int _irssi = (int)_rssi;
         for (int i=0; i<players.size(); i++) {
-            players.get(i).setRating(_irssi);
+            players.get(i).setRating(truncatedDouble);
         }
     }
 }
