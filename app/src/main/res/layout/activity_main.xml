@@ -37,17 +37,17 @@
                 android:src="@drawable/ic_launcher" />
 
             <TextView
-                android:id="@+id/text_view_id"
-                android:layout_width="wrap_content"
-                android:layout_height="18dp"
-                android:layout_weight="0.55"
-                android:paddingTop="0dp"
-                android:text="@string/hello"
-                android:textAlignment="center"
-                android:textColor="@android:color/white"
-                android:textScaleX="1"
-                android:textSize="14sp"
-                android:textStyle="bold" />
+            android:id="@+id/text_view_id"
+            android:layout_width="wrap_content"
+            android:layout_height="18dp"
+            android:layout_weight="0.55"
+            android:paddingTop="0dp"
+            android:text="@string/hello"
+            android:textAlignment="center"
+            android:textColor="@android:color/white"
+            android:textScaleX="1"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
 
         </android.support.v7.widget.Toolbar>

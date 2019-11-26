@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:icon="@drawable/ic_launcher"
@@ -57,7 +58,10 @@
                 android:value=".NirSpecs" />
             </activity>
 
-        <service android:name=".BleConnectionService" />
+        <service android:name="com.example.makan.blue.BleConnectionService"
+            android:enabled="true"
+
+            android:stopWithTask="false"/>
     </application>
 
 

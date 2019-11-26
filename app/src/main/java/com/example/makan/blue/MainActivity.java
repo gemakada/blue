@@ -2,63 +2,41 @@ package com.example.makan.blue;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Message;
 import android.os.StrictMode;
-import android.renderscript.Sampler;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresPermission;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import com.example.makan.blue.interfaces.listviewListener;
 import com.example.makan.blue.ViewHolders.Player;
 import com.example.makan.blue.ViewHolders.PlayersDataAdapter;
-import com.weiwangcn.betterspinner.library.material.MaterialBetterSpinner;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
@@ -92,19 +70,14 @@ public class MainActivity extends AppCompatActivity implements listviewListener 
     private static final int REQUEST_ENABLE_BLUETOOTH = 1;
     private ChatController chatController;
 
+    BleConnectionService bleService;
 
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder service) {
             mBluetoothLeService = ((BleConnectionService.LocalBinder) service).getService();
-            if (!mBluetoothLeService.initialize()) {
-               Log.e(LOG_TAG, "Unable to initialize Bluetooth");
-//                finish();
-//            }
-                // Automatically connects to the device upon successful start-up initialization.
-                //    mBluetoothLeService.connect(mDeviceAddress);
-            }
+
         }
 
         @Override
@@ -195,7 +168,13 @@ public class MainActivity extends AppCompatActivity implements listviewListener 
 
 
         registerReceiver(BleReceiver, new IntentFilter(ACTION_RSSI));
+
         Intent gattServiceIntent = new Intent(this, BleConnectionService.class);
+        if (!isBleServiceRunning(com.example.makan.blue.BleConnectionService.class)) {
+            bleService = new BleConnectionService();
+            startForegroundService(new Intent(this, bleService.getClass()));
+        }
+
         bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
 
         setPlayersDataAdapter();
@@ -233,6 +212,8 @@ public class MainActivity extends AppCompatActivity implements listviewListener 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unregisterReceiver(BleReceiver);
+        this.unbindService(mServiceConnection);
 
     }
 
@@ -470,7 +451,15 @@ public class MainActivity extends AppCompatActivity implements listviewListener 
 
 
 
-
+    private boolean isBleServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 
 }

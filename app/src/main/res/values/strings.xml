@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name"></string>
+    <string name="app_name">Smart Locker</string>
     <string name="app_name10">Name</string>
     <string name="hello">Smart Locker</string>
     <string name="custom_name">Your Name:</string>

@@ -1,8 +1,11 @@
 package com.example.makan.blue;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothClass;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
@@ -18,9 +21,9 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat.InboxStyle;
 import android.util.Log;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
@@ -61,6 +64,41 @@ public class BleConnectionService extends Service  {
 
    // public final static UUID UUID_HEART_RATE_MEASUREMENT =
          //   UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
+
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        super.onStartCommand(intent, flags, startId);
+        Log.i(TAG, "onStartCommand()");
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        String channelId =  "Smart Locker";
+        NotificationChannel notificationChannel = new NotificationChannel(channelId, channelId, NotificationManager.IMPORTANCE_DEFAULT);
+        Intent snoozeIntent = new Intent(this, MainActivity.class);
+        notificationChannel.setDescription(channelId);
+        notificationChannel.setSound(null, null);
+
+        notificationManager.createNotificationChannel(notificationChannel);
+        PendingIntent snoozePendingIntent =
+                PendingIntent.getActivity(this,1,new Intent(this,MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+        Notification notification = new Notification.Builder(this, channelId)
+
+                .setContentTitle("Locker Service")
+
+
+                .setAutoCancel(true)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .addAction(R.drawable.ic_launcher, "Settings", snoozePendingIntent)
+                .setStyle(new Notification.BigTextStyle()
+
+                        .bigText("Locker Service is Active")
+
+                        )
+
+
+                .build();
+        startForeground(1, notification);
+        //stopForeground(true);
+        this.initialize();
+        return START_STICKY;
+    }
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -151,7 +189,7 @@ public class BleConnectionService extends Service  {
                       //  broadcastUpdate(intentAction);
                         Log.i(TAG, "Connected to GATT server.");
                         Log.i(TAG, "Attempting to start service discovery:" +
-                                mBluetoothGatt.discoverServices());
+                                mBluetoothGatt.discoverServices() );
 
                     } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                         //reader.cancel(true);
@@ -169,35 +207,37 @@ public class BleConnectionService extends Service  {
                     if (status == BluetoothGatt.GATT_SUCCESS) {
                         float distance;
                         float d1;
-                        Log.w(TAG, "RSSI is "+ String.valueOf(rssi));
-                        d1 = (float)(-59-rssi)/40;
-                        distance = (float) Math.pow(10.0,d1);
+                        Log.w(TAG, "RSSI is " + String.valueOf(rssi));
+                        d1 = (float) (-59 - rssi) / 40;
+                        distance = (float) Math.pow(10.0, d1);
                         item.add(distance);
                         String res = String.valueOf(distance);
-                       // Log.w(TAG, String.format("BluetoothGatt ReadRssi[%d]", rssi));
-                        Log.w(TAG, "Distance is "+ res);
+                        // Log.w(TAG, String.format("BluetoothGatt ReadRssi[%d]", rssi));
+                        Log.w(TAG, "Distance is " + res);
 
                         sendToActivity(res);
                         Log.w(TAG, String.format("Distance is" + String.valueOf(item.getAverage())));
-                        if ((distance<2)&&(flag==false)&&((automaticFlag==true)||(singleFlag==true))) {
-                            BluetoothGattCharacteristic characteristic = gatt.getService(UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")).getCharacteristic(UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"));
-                            byte [] array = {13,9,10,0,9,14,11,10,1,6,3,6,13,9,0,12};
-                            characteristic.setValue(array);
-                            gatt.writeCharacteristic(characteristic);
-                            if (singleFlag==true) {
-                                singleFlag=false;
-                            }
-
-                           // flag = true;
-                            disconnect();
-
-                        }
-                        else {
-                            singleFlag=false;
-                            disconnect();
-                        }
-
+//                        if ((distance<2)&&(flag==false)&&((automaticFlag==true)||(singleFlag==true))) {
+//                           // BluetoothGattCharacteristic characteristic = gatt.getService(UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")).getCharacteristic(UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"));
+//                            byte [] array = {13,9,10,0,9,14,11,10,1,6,3,6,13,9,0,12};
+//                         //   characteristic.setValue(array);
+//                          //  gatt.writeCharacteristic(characteristic);
+//                            if (singleFlag==true) {
+//                                singleFlag=false;
+//                            }
+//
+//                           // flag = true;
+//                            disconnect();
+//
+//                        }
+//                        else {
+//                            singleFlag=false;
+//                            disconnect();
+//                        }
+//
+//                    }
                     }
+                   // disconnect();
                 }
 
                 @Override
@@ -208,11 +248,11 @@ public class BleConnectionService extends Service  {
                             Log.w(TAG, "Available services are: " + gatt.getServices().get(i).getUuid().toString());
                         }
                         List<BluetoothGattCharacteristic> gattCharList;
-                        gattCharList=gatt.getService(UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")).getCharacteristics();
+                        gattCharList=gatt.getService(UUID.fromString("00000140-0000-1000-8000-00805f9b34fb")).getCharacteristics();
                         for (int j=0; j<gattCharList.size(); j++) {
                             Log.w(TAG, "Available characteristics are: " + gattCharList.get(j).getUuid().toString());
                         }
-                       BluetoothGattCharacteristic characteristic = gatt.getService(UUID.fromString("6e400001-b5a3-f393-e0a9-e50e24dcca9e")).getCharacteristic(UUID.fromString("6e400002-b5a3-f393-e0a9-e50e24dcca9e"));
+                       BluetoothGattCharacteristic characteristic = gatt.getService(UUID.fromString("00000140-0000-1000-8000-00805f9b34fb")).getCharacteristic(UUID.fromString("0000140d-0000-1000-8000-00805f9b34fb"));
                         String text = "D9A09EBA1636D90C";
                         byte [] array = {13,9,10,0,9,14,11,10,1,6,3,6,13,9,0,12};
                         //characteristic.setValue(array);
@@ -268,16 +308,17 @@ public class BleConnectionService extends Service  {
         }
 
         // Previously connected device.  Try to reconnect.
-        if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress)
-                && mBluetoothGatt != null) {
-            Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
-            if (mBluetoothGatt.connect()) {
-                mConnectionState = STATE_CONNECTING;
-                return true;
-            } else {
-                return false;
-            }
-        }
+//        if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress)
+//                && mBluetoothGatt != null) {
+//            Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
+//            if (mBluetoothGatt.connect()) {
+//                mConnectionState = STATE_CONNECTING;
+//                return true;
+//            } else {
+//
+//                return false;
+//            }
+//        }
 
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         if (device == null) {
@@ -331,6 +372,14 @@ public class BleConnectionService extends Service  {
                     }
 
 
+                }
+                else {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    mBluetoothGatt.readRemoteRssi();
                 }
                // params[0].connect();
             }
