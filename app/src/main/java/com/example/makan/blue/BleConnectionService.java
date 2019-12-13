@@ -37,13 +37,17 @@ public class BleConnectionService extends Service  {
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothGatt mBluetoothGatt;
+    private String Connection;
     private String mBluetoothDeviceAddress;
     private final String ACTION_RSSI = "com.example.makan.RSSI";
+    private final String ACTION_Connection = "com.example.makan.Connection";
+
     private boolean flag =false;
     Rolling item;
     private  RssiReader reader = new RssiReader();
     //private int connectionState = STATE_DISCONNECTED;
     private Intent rssiIntent = new Intent(ACTION_RSSI);
+    private Intent connectionIntent = new Intent(ACTION_Connection);
     private int mConnectionState = STATE_DISCONNECTED;
     private boolean automaticFlag;
     private boolean singleFlag=false;
@@ -102,6 +106,7 @@ public class BleConnectionService extends Service  {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+
         return mBinder;
     }
 
@@ -190,6 +195,7 @@ public class BleConnectionService extends Service  {
                         Log.i(TAG, "Connected to GATT server.");
                         Log.i(TAG, "Attempting to start service discovery:" +
                                 mBluetoothGatt.discoverServices() );
+                        sendToActivityConnection(mConnectionState);
 
                     } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                         //reader.cancel(true);
@@ -200,6 +206,7 @@ public class BleConnectionService extends Service  {
                         flag = false;
                        // restartLescan();
                      //   broadcastUpdate(intentAction);
+                        sendToActivityConnection(mConnectionState);
                     }
                 }
                 @Override
@@ -307,18 +314,7 @@ public class BleConnectionService extends Service  {
             return false;
         }
 
-        // Previously connected device.  Try to reconnect.
-//        if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress)
-//                && mBluetoothGatt != null) {
-//            Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
-//            if (mBluetoothGatt.connect()) {
-//                mConnectionState = STATE_CONNECTING;
-//                return true;
-//            } else {
-//
-//                return false;
-//            }
-//        }
+
 
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         if (device == null) {
@@ -436,6 +432,13 @@ public class BleConnectionService extends Service  {
         this.sendBroadcast(rssiIntent);
 
 
+    }
+
+    void sendToActivityConnection(int status) {
+        Bundle extras = new Bundle();
+        extras.putInt("Connection",mConnectionState);
+        connectionIntent.putExtras(extras);
+        this.sendBroadcast(connectionIntent);
     }
 
 

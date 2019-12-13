@@ -23,9 +23,9 @@ public class PlayersDataAdapter  extends RecyclerView.Adapter<PlayersDataAdapter
     private List<Player> players;
     private static final String LOG_TAG = PlayersDataAdapter.class.getSimpleName();
     public listviewListener activityListener;
-
+    PlayerViewHolder holder;
     public class PlayerViewHolder extends RecyclerView.ViewHolder {
-        private TextView name, nationality, club, rating, age;
+        private TextView name, nationality, club, rating, age, connection;
         private Button unlockbtn;
         SwitchCompat automatic;
 
@@ -35,6 +35,7 @@ public class PlayersDataAdapter  extends RecyclerView.Adapter<PlayersDataAdapter
             //nationality = (TextView) view.findViewById(R.id.nationality);
             //club = (TextView) view.findViewById(R.id.club);
             rating = (TextView) view.findViewById(R.id.rating);
+            connection = (TextView) view.findViewById(R.id.connectionStatus);
             unlockbtn = (Button) view.findViewById(R.id.unlock);
             automatic = (SwitchCompat) view.findViewById(R.id.switchAutomatic);
 
@@ -58,10 +59,15 @@ public class PlayersDataAdapter  extends RecyclerView.Adapter<PlayersDataAdapter
 
     @Override
     public void onBindViewHolder(PlayerViewHolder holder, final int position) {
+        this.holder = holder;
         Player player = players.get(position);
         holder.name.setText(player.getName());
         //holder.nationality.setText(player.getNationality());
         //holder.club.setText(player.getClub());
+        holder.connection.setText(player.getNationality());
+
+
+
         holder.rating.setText(player.getRating().toString());
         holder.unlockbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,6 +109,12 @@ public class PlayersDataAdapter  extends RecyclerView.Adapter<PlayersDataAdapter
         int _irssi = (int)_rssi;
         for (int i=0; i<players.size(); i++) {
             players.get(i).setRating(truncatedDouble);
+        }
+    }
+
+    public void setConnection(String conn) {
+        for (int i=0; i<players.size(); i++) {
+            players.get(i).setNationality(conn);
         }
     }
 }

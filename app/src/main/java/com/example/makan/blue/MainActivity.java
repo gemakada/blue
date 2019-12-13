@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity implements listviewListener 
     private Dialog dialog;
     private TextView status;
     private final String ACTION_RSSI = "com.example.makan.RSSI";
+    private final String ACTION_Connection = "com.example.makan.Connection";
     private BluetoothAdapter adapter;
 
     public static final int MESSAGE_STATE_CHANGE = 1;
@@ -168,6 +169,7 @@ public class MainActivity extends AppCompatActivity implements listviewListener 
 
 
         registerReceiver(BleReceiver, new IntentFilter(ACTION_RSSI));
+        registerReceiver(BleReceiverConn, new IntentFilter(ACTION_Connection));
 
         Intent gattServiceIntent = new Intent(this, BleConnectionService.class);
         if (!isBleServiceRunning(com.example.makan.blue.BleConnectionService.class)) {
@@ -213,6 +215,7 @@ public class MainActivity extends AppCompatActivity implements listviewListener 
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(BleReceiver);
+        unregisterReceiver(BleReceiverConn);
         this.unbindService(mServiceConnection);
 
     }
@@ -243,7 +246,7 @@ public class MainActivity extends AppCompatActivity implements listviewListener 
                 st = line.split(",");
                 Player player = new Player();
                 player.setName(st[0]);
-                player.setNationality(st[1]);
+                player.setNationality("Offline");
                 player.setClub(st[4]);
                 player.setRating(Double.valueOf(st[9]));
                player.setAge(Integer.parseInt(st[14]));
@@ -261,6 +264,22 @@ public class MainActivity extends AppCompatActivity implements listviewListener 
 
             mAdapter.setRSSI(srri);
             mAdapter.notifyDataSetChanged();
+
+
+    }
+
+    private void RefreshRecycleConn(String conn) {
+
+        mAdapter.setConnection(conn);
+        mAdapter.notifyDataSetChanged();
+
+
+    }
+
+    private void RefreshRecycleConnection(String conn) {
+
+        //mAdapter.setRSSI(srri);
+        mAdapter.notifyDataSetChanged();
 
 
     }
@@ -290,6 +309,7 @@ public class MainActivity extends AppCompatActivity implements listviewListener 
         filter = new IntentFilter(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
         registerReceiver(discoveryFinishReceiver, filter);
         registerReceiver(BleReceiver, new IntentFilter(ACTION_RSSI));
+        registerReceiver(BleReceiver, new IntentFilter());
         adapter = BluetoothAdapter.getDefaultAdapter();
         Set<BluetoothDevice> pairedDevices = adapter.getBondedDevices();
 
@@ -423,6 +443,17 @@ public class MainActivity extends AppCompatActivity implements listviewListener 
             String rssi = intent.getStringExtra("RSSI");
            Log.v(LOG_TAG,"received Rssi to main: "+intent.getStringExtra("RSSI"));
             RefreshRecycle(rssi);
+
+        }
+    };
+
+    private final BroadcastReceiver BleReceiverConn = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            int connection = intent.getIntExtra("Connection",1);
+            RefreshRecycleConn(String.valueOf(connection));
+           // Log.v(LOG_TAG,"received Rssi to main: "+intent.getStringExtra("RSSI"));
+            //RefreshRecycle(rssi);
 
         }
     };
